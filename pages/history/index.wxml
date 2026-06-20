@@ -1,0 +1,10 @@
+<view class="page history-page"><app-header title="练习记录"></app-header>
+  <view wx:if="{{items.length}}" class="history-list">
+    <view class="card history-item" wx:for="{{items}}" wx:key="questionId" data-id="{{item.questionId}}" bindtap="open">
+      <view class="row space-between"><text class="tag">{{item.module.shortName}}</text><text class="status {{item.latestCorrect?'green':'wrong'}}">{{item.latestCorrect?'最近答对':'最近答错'}}</text></view>
+      <view class="stem">{{item.question.stem}}</view>
+      <view class="row space-between muted"><text>作答 {{item.attemptCount}} 次 · 错误 {{item.wrongCount}} 次</text><text>{{item.timeText}}</text></view>
+    </view>
+  </view>
+  <view wx:else class="empty"><view class="empty__title">还没有练习记录</view><view class="muted">完成一次答题后，这里会记录每道题的练习情况</view><button class="primary-button" bindtap="openBank">开始练习</button></view>
+</view>

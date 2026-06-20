@@ -1,0 +1,6 @@
+<view class="page profile" style="padding-top: {{layout.contentTop}}px;"><view class="profile-bg"></view>
+  <view class="profile-head"><view class="avatar"><view class="avatar__sun"></view><view class="avatar__hill"></view></view><view><view class="profile-name">备考小林</view><view class="muted">连续学习 <text class="green">{{streak}}</text> 天</view><view class="goal-chip">目标：2027 国考</view></view></view>
+  <view class="metrics"><view bindtap="openTotal"><text>累计</text><view>{{total}}<text>题</text></view></view><view bindtap="openAccuracy"><text>正确率</text><view>{{accuracy}}<text>%</text></view></view><view bindtap="openFavorites"><text>收藏</text><view>{{favorites}}<text>题</text></view></view></view>
+  <view class="card menu"><view class="menu-row" wx:for="{{menu}}" wx:key="label" data-index="{{index}}" bindtap="openMenu"><view class="menu-mark menu-mark--{{index%2?'blue':'green'}}"></view><text>{{item.label}}</text><text class="menu-more">查看</text></view></view>
+  <view class="review-note">题库内容持续复核中</view>
+</view><bottom-nav active="profile"></bottom-nav>

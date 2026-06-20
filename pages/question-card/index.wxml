@@ -1,0 +1,17 @@
+<view class="page card-page">
+  <app-header title="答题卡"></app-header>
+  <view class="card card-summary">
+    <view><text class="summary-number">{{completed}}</text><text class="muted">已完成</text></view>
+    <view><text class="summary-number green">{{correct}}</text><text class="muted">正确</text></view>
+    <view><text class="summary-number wrong-text">{{wrong}}</text><text class="muted">错误</text></view>
+  </view>
+  <view class="section-title">本组题目</view>
+  <view class="card-grid">
+    <view wx:for="{{rows}}" wx:key="questionId"
+      class="card-number card-number--{{item.status}} {{item.current?'card-number--current':''}}"
+      data-index="{{item.index}}" bindtap="openQuestion">{{item.number}}</view>
+  </view>
+  <view class="legend">
+    <view><view class="dot dot--correct"></view>答对</view><view><view class="dot dot--wrong"></view>答错</view><view><view class="dot dot--current"></view>当前</view><view><view class="dot dot--locked"></view>未解锁</view>
+  </view>
+</view>

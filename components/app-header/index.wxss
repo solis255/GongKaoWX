@@ -1,0 +1,8 @@
+.header { position: relative; box-sizing: border-box; }
+.header__content { position: absolute; right: 0; bottom: 8px; left: 0; height: 32px; display: flex; align-items: center; justify-content: space-between; }
+.header__title { position: absolute; right: 80rpx; left: 80rpx; text-align: center; font-size: 34rpx; font-weight: 700; color: #172131; }
+.side { position: absolute; width: 64rpx; min-height: 64rpx; display: flex; align-items: center; font-size: 27rpx; color: #6f7885; }
+.side--left { left: 0; }
+.side--right { width:112rpx;justify-content: flex-end; color: #10a97d; }
+.back-button{width:64rpx;height:64rpx;display:flex;align-items:center;justify-content:center;border-radius:50%;color:#273240;background:#f2f6f5;box-shadow:0 4rpx 14rpx rgba(24,67,77,.08)}
+.back-button__arrow{margin-top:-4rpx;font-size:52rpx;line-height:1}

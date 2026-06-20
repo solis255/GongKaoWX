@@ -1,0 +1,7 @@
+<view class="page result" style="padding-top: {{layout.contentTop + 20}}px;"><view class="result-title">本组练习完成</view><view class="score-ring"><view>{{summary.accuracy}}<text>%</text></view><text>正确 {{summary.correct}} / {{summary.total}}</text></view>
+  <view class="card metrics"><view><text>用时</text><view>{{minutes}}分{{seconds}}秒</view></view><view><text>平均</text><view>{{averageSeconds}}秒</view></view><view><text>连续正确</text><view>{{streak}}题</view></view></view>
+  <view class="card distribution"><view class="section-title">答题分布</view><view class="distribution-bar"><view class="correct-bar" style="width:{{summary.accuracy}}%"></view><view class="wrong-bar"></view></view><view class="row space-between"><text class="green">正确 {{summary.correct}} 题</text><text class="wrong">错误 {{summary.incorrect}} 题</text></view></view>
+  <view class="card performance"><view class="section-title">本组表现</view><view class="row space-between"><text>{{module.name}}</text><text class="green">正确率 {{summary.accuracy}}%</text></view></view>
+  <view class="soft-card wrong-note">{{summary.incorrect}} 道错题已加入错题本</view>
+  <view class="result-actions"><view class="outline-button" bindtap="reviewWrong">错题回顾</view><view class="primary-button" bindtap="again">再练一组</view></view><view class="home-link" bindtap="home">返回首页</view>
+</view>

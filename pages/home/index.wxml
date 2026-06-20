@@ -1,0 +1,28 @@
+<view class="page home" style="padding-top: {{layout.contentTop}}px;">
+  <view class="fade-top"></view>
+  <view class="row space-between hero-head">
+    <view><view class="title">{{greeting.title}}，{{greeting.subtitle}}</view><view class="streak">已坚持 <text>{{streak}}</text> 天</view></view>
+    <view class="calendar"><text>{{dateCard.month}}月</text><text class="calendar__day">{{dateCard.day}}</text><text>{{dateCard.weekday}}</text></view>
+  </view>
+  <view class="gradient-card goal" bindtap="openGoal">
+    <view><text class="goal__label">今日目标</text><view class="goal__number">{{todayGoal}}<text>题</text></view></view>
+    <view class="goal__divider"></view>
+    <view><text class="goal__label">已完成</text><view class="goal__number">{{todayDone}}<text>题</text></view></view>
+    <view class="goal__ring">{{todayProgress}}%</view>
+  </view>
+  <view class="section-title">科目练习</view>
+  <view class="module-list">
+    <view class="module-row" wx:for="{{modules}}" wx:key="key" data-key="{{item.key}}" bindtap="openModule">
+      <view class="module-icon module-icon--{{item.accent}}">{{item.shortName}}</view>
+      <view class="module-name">{{item.name}}</view>
+      <view class="module-progress"><progress-bar value="{{item.progress}}" accent="{{item.accent}}"></progress-bar></view>
+      <view class="module-count {{item.accent}}">{{item.done}}/{{item.questionCount}}</view>
+    </view>
+  </view>
+  <button class="primary-button continue" bindtap="continuePractice">继续刷题</button>
+  <view class="soft-card reminder" bindtap="openWrong">
+    <view><view class="reminder__title">错题复习提醒</view><view class="muted">你有 <text class="green">{{wrongCount}}</text> 道错题未复习</view></view>
+    <view class="green">去复习</view>
+  </view>
+</view>
+<bottom-nav active="home"></bottom-nav>

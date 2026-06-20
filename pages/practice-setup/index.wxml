@@ -1,0 +1,7 @@
+<view class="page setup"><app-header title="练习设置"></app-header>
+  <view class="gradient-card module-hero"><view class="module-symbol">{{mode==='mixed'?'综合':module.shortName}}</view><view><view class="module-name">{{mode==='mixed'?'综合随机练习':module.name}}</view><view class="module-progress">{{mode==='mixed'?'从已选模块均衡抽题':module.questionCount+' 道题可练'}}</view></view></view>
+  <view class="card setting-card"><view class="section-title">练习题量</view><view class="chips"><view class="choice {{count===item.value?'choice--active':''}}" wx:for="{{countOptions}}" wx:key="value" data-count="{{item.value}}" bindtap="setCount">{{mode==='mixed'&&item.value===60?'60题':item.label}}</view></view></view>
+  <view class="card setting-card"><view class="section-title">出题顺序</view><view class="order-row"><view class="order {{!random?'choice--active':''}}" data-random="false" bindtap="setOrder">顺序练习</view><view class="order {{random?'choice--active':''}}" data-random="true" bindtap="setOrder">随机练习</view></view></view>
+  <view class="card switches"><view class="switch-row"><text>只练未做题</text><switch color="#20b88d" checked="{{onlyNew}}" bindchange="toggleNew" /></view></view>
+  <button class="primary-button start" bindtap="start">开始练习</button>
+</view>

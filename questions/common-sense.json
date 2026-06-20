@@ -43,7 +43,7 @@
           "url": "https://www.gov.cn/guoqing/2018-03/22/content_5276318.htm"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-002",
@@ -85,7 +85,7 @@
           "accessedAt": "2026-06-18"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-003",
@@ -127,7 +127,7 @@
           "accessedAt": "2026-06-18"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-004",
@@ -167,7 +167,7 @@
           "url": "https://flk.npc.gov.cn/detail2.html?MmM5MDlmZGQ2NzhiZjE3OTAxNjc4YmY3YjMyNzAwNjQ%3D"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-005",
@@ -207,7 +207,7 @@
           "url": "https://www.gov.cn/flfg/2007-06/29/content_669394.htm"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-006",
@@ -247,7 +247,7 @@
           "url": "https://www.gov.cn/jrzg/2013-10/25/content_2515601.htm"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-007",
@@ -289,7 +289,7 @@
           "accessedAt": "2026-06-18"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-008",
@@ -329,7 +329,7 @@
           "url": "https://flk.npc.gov.cn/detail2.html?ZmY4MDgxODE3OTZhNjM2YjAxNzk4MjJhMTk0ZDIwN2E%3D"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-009",
@@ -371,7 +371,7 @@
           "accessedAt": "2026-06-18"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-010",
@@ -411,7 +411,7 @@
           "url": "https://www.gov.cn/guoqing/2021-10/29/content_5647633.htm"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-011",
@@ -451,7 +451,7 @@
           "url": "https://www.gov.cn/flfg/2010-04/30/content_1596420.htm"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-012",
@@ -491,7 +491,7 @@
           "url": "https://www.gov.cn/xinwen/2018-03/27/content_5278054.htm"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-013",
@@ -531,7 +531,7 @@
           "url": "https://www.stats.gov.cn/zs/tjws/zytjzbqs/202301/t20230101_1903749.html"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-014",
@@ -571,7 +571,7 @@
           "url": "https://www.pbc.gov.cn/zhengcehuobisi/125207/125213/index.html"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-015",
@@ -611,7 +611,7 @@
           "url": "https://www.mof.gov.cn/index.htm"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-016",
@@ -645,7 +645,7 @@
         "均衡价格"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-017",
@@ -679,7 +679,7 @@
         "通货膨胀"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-018",
@@ -713,7 +713,7 @@
         "价格趋同"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-019",
@@ -747,7 +747,7 @@
         "资源选择"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-020",
@@ -787,7 +787,7 @@
           "url": "https://www.stats.gov.cn/"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-021",
@@ -821,7 +821,7 @@
         "露点"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-022",
@@ -861,7 +861,7 @@
           "url": "https://www.nhc.gov.cn/"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-023",
@@ -895,7 +895,7 @@
         "氧化还原"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-024",
@@ -935,7 +935,7 @@
           "url": "https://www.cmse.gov.cn/"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-025",
@@ -975,7 +975,7 @@
           "url": "https://www.oscca.gov.cn/"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-026",
@@ -1015,7 +1015,7 @@
           "url": "https://www.nhc.gov.cn/"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-027",
@@ -1055,7 +1055,7 @@
           "url": "https://www.nea.gov.cn/"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-028",
@@ -1089,7 +1089,7 @@
         "水的光解"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-029",
@@ -1129,7 +1129,7 @@
           "url": "https://www.cea.gov.cn/"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-030",
@@ -1169,7 +1169,7 @@
           "url": "https://www.samr.gov.cn/"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-031",
@@ -1209,7 +1209,7 @@
           "url": "https://www.cah.ac.cn/"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-032",
@@ -1249,7 +1249,7 @@
           "url": "https://www.cah.ac.cn/"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-033",
@@ -1289,7 +1289,7 @@
           "url": "https://www.cah.ac.cn/"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-034",
@@ -1329,7 +1329,7 @@
           "url": "https://www.chnmuseum.cn/"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-035",
@@ -1369,7 +1369,7 @@
           "url": "https://www.ncha.gov.cn/"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-036",
@@ -1409,7 +1409,7 @@
           "url": "https://www.chnmuseum.cn/"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-037",
@@ -1449,7 +1449,7 @@
           "url": "https://www.moe.gov.cn/"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-038",
@@ -1489,7 +1489,7 @@
           "url": "https://www.cma.gov.cn/"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-039",
@@ -1529,7 +1529,7 @@
           "url": "https://www.dpm.org.cn/"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-040",
@@ -1569,7 +1569,7 @@
           "url": "https://www.ihchina.cn/"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-041",
@@ -1609,7 +1609,7 @@
           "url": "https://www.mnr.gov.cn/"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-042",
@@ -1649,7 +1649,7 @@
           "url": "https://www.cma.gov.cn/"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-043",
@@ -1689,7 +1689,7 @@
           "url": "https://www.cjw.gov.cn/"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-044",
@@ -1729,7 +1729,7 @@
           "url": "https://www.mee.gov.cn/"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-045",
@@ -1769,7 +1769,7 @@
           "url": "https://www.mem.gov.cn/"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-046",
@@ -1809,7 +1809,7 @@
           "url": "https://www.mnr.gov.cn/"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-047",
@@ -1849,7 +1849,7 @@
           "url": "https://www.cma.gov.cn/"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-048",
@@ -1889,7 +1889,7 @@
           "url": "https://www.mnr.gov.cn/"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-049",
@@ -1931,7 +1931,7 @@
           "accessedAt": "2026-06-18"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-050",
@@ -1973,7 +1973,7 @@
           "accessedAt": "2026-06-18"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-051",
@@ -2015,7 +2015,7 @@
           "accessedAt": "2026-06-18"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-052",
@@ -2057,7 +2057,7 @@
           "accessedAt": "2026-06-18"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-053",
@@ -2099,7 +2099,7 @@
           "accessedAt": "2026-06-18"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-054",
@@ -2141,7 +2141,7 @@
           "accessedAt": "2026-06-18"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-055",
@@ -2183,7 +2183,7 @@
           "accessedAt": "2026-06-18"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-056",
@@ -2225,7 +2225,7 @@
           "accessedAt": "2026-06-18"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-057",
@@ -2267,7 +2267,7 @@
           "accessedAt": "2026-06-18"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-058",
@@ -2309,7 +2309,7 @@
           "accessedAt": "2026-06-18"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-059",
@@ -2351,7 +2351,7 @@
           "accessedAt": "2026-06-18"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "common-sense-060",
@@ -2391,7 +2391,7 @@
           "url": "https://www.gov.cn/banshi/2005-08/01/content_19023.htm"
         }
       ],
-      "status": "draft"
+      "status": "reviewed"
     }
   ]
 }

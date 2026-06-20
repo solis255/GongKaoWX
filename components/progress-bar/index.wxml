@@ -1,0 +1,1 @@
+<view class="track"><view class="fill fill--{{accent}}" style="width: {{value}}%"></view></view>

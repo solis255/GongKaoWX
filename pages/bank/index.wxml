@@ -1,0 +1,9 @@
+<view class="page bank" style="padding-top: {{layout.contentTop}}px;"><view class="fade-top"></view>
+  <view class="title">题库</view><view class="subtitle">选择一个模块开始练习</view>
+  <view class="segmented card"><view class="segment {{mode==='module'?'segment--active':''}}" data-mode="module" bindtap="changeMode">模块练习</view><view class="segment {{mode==='random'?'segment--active':''}}" data-mode="random" bindtap="changeMode">随机练习</view></view>
+  <view class="card bank-list">
+    <view class="bank-row" wx:for="{{modules}}" wx:key="key" data-key="{{item.key}}" bindtap="openModule"><view class="module-icon module-icon--{{item.accent}}">{{item.shortName}}</view><view class="bank-info"><view class="bank-name">{{item.name}}</view><view class="muted">{{item.questionCount}} 题</view></view><view wx:if="{{mode==='module'}}" class="bank-progress"><progress-bar value="{{item.progress}}" accent="{{item.accent}}"></progress-bar></view><view wx:if="{{mode==='module'}}" class="{{item.accent}}">{{item.done}}/{{item.questionCount}}</view><view wx:else class="range-check {{item.selected?'range-check--active':''}}">{{item.selected?'已选':'选择'}}</view></view>
+  </view>
+  <view wx:if="{{mode==='module'}}" class="soft-card recommend" data-key="verbal" bindtap="openModule"><view><view class="recommend__title">今日推荐 · 言语理解</view><view class="muted">10 题</view></view><view class="tag">开始练习</view></view>
+  <button wx:else class="primary-button random-start" bindtap="startRandom">开始综合随机练习</button>
+</view><bottom-nav active="bank"></bottom-nav>

@@ -1,0 +1,10 @@
+<view class="page goal-page">
+  <app-header title="每日学习目标"></app-header>
+  <view class="title-block"><view class="title">今天准备完成多少题？</view><view class="subtitle">设一个刚刚好的目标，坚持比突击更重要</view></view>
+  <view class="card target-card">
+    <view class="target-value"><input type="number" value="{{value}}" bindinput="input" maxlength="3"/><text>题 / 天</text></view>
+    <view class="choices"><view class="choice {{value==item?'choice--active':''}}" wx:for="{{options}}" wx:key="*this" data-value="{{item}}" bindtap="choose">{{item}}题</view></view>
+    <view wx:if="{{error}}" class="error">{{error}}</view>
+  </view>
+  <button class="primary-button save" bindtap="save">保存目标</button>
+</view>

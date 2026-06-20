@@ -1,0 +1,29 @@
+{
+  "pages": [
+    "pages/home/index",
+    "pages/bank/index",
+    "pages/practice-setup/index",
+    "pages/question/index",
+    "pages/question-card/index",
+    "pages/analysis/index",
+    "pages/result/index",
+    "pages/wrong/index",
+    "pages/stats/index",
+    "pages/profile/index",
+    "pages/goal/index",
+    "pages/favorites/index",
+    "pages/history/index"
+  ],
+  "window": {
+    "navigationStyle": "custom",
+    "backgroundColor": "#f8fbfa",
+    "backgroundTextStyle": "dark"
+  },
+  "usingComponents": {
+    "app-header": "/components/app-header/index",
+    "progress-bar": "/components/progress-bar/index",
+    "bottom-nav": "/components/bottom-nav/index"
+  },
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

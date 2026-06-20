@@ -36,7 +36,7 @@
         "基础运算"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-002",
@@ -69,7 +69,7 @@
         "基础运算"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-003",
@@ -102,7 +102,7 @@
         "基础运算"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-004",
@@ -135,7 +135,7 @@
         "分数运算"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-005",
@@ -168,7 +168,7 @@
         "方程求解"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-006",
@@ -201,7 +201,7 @@
         "基础运算"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-007",
@@ -234,7 +234,7 @@
         "平均数"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-008",
@@ -267,7 +267,7 @@
         "根式运算"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-009",
@@ -300,7 +300,7 @@
         "等差数列"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-010",
@@ -333,7 +333,7 @@
         "分数运算"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-011",
@@ -366,7 +366,7 @@
         "行程问题"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-012",
@@ -399,7 +399,7 @@
         "相遇问题"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-013",
@@ -432,7 +432,7 @@
         "追及问题"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-014",
@@ -465,7 +465,7 @@
         "流水行船"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-015",
@@ -498,7 +498,7 @@
         "环形运动"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-016",
@@ -531,7 +531,7 @@
         "工程问题"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-017",
@@ -564,7 +564,7 @@
         "合作工程"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-018",
@@ -597,7 +597,7 @@
         "工程效率"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-019",
@@ -630,7 +630,7 @@
         "蓄水问题"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-020",
@@ -663,7 +663,7 @@
         "工程统筹"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-021",
@@ -696,7 +696,7 @@
         "比例问题"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-022",
@@ -729,7 +729,7 @@
         "百分数"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-023",
@@ -762,7 +762,7 @@
         "浓度问题"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-024",
@@ -795,7 +795,7 @@
         "增长率"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-025",
@@ -828,7 +828,7 @@
         "比例问题"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-026",
@@ -861,7 +861,7 @@
         "浓度问题"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-027",
@@ -894,7 +894,7 @@
         "连比"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-028",
@@ -927,7 +927,7 @@
         "利润问题"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-029",
@@ -960,7 +960,7 @@
         "折扣问题"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-030",
@@ -993,7 +993,7 @@
         "复利"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-031",
@@ -1026,7 +1026,7 @@
         "平面几何"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-032",
@@ -1059,7 +1059,7 @@
         "三角形"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-033",
@@ -1092,7 +1092,7 @@
         "圆"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-034",
@@ -1125,7 +1125,7 @@
         "正方形"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-035",
@@ -1158,7 +1158,7 @@
         "梯形"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-036",
@@ -1191,7 +1191,7 @@
         "扇形"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-037",
@@ -1224,7 +1224,7 @@
         "立体几何"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-038",
@@ -1257,7 +1257,7 @@
         "立体几何"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-039",
@@ -1290,7 +1290,7 @@
         "排列组合"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-040",
@@ -1323,7 +1323,7 @@
         "排列组合"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-041",
@@ -1356,7 +1356,7 @@
         "组合"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-042",
@@ -1389,7 +1389,7 @@
         "古典概率"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-043",
@@ -1422,7 +1422,7 @@
         "古典概率"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-044",
@@ -1455,7 +1455,7 @@
         "组合"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-045",
@@ -1488,7 +1488,7 @@
         "排列组合"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-046",
@@ -1521,7 +1521,7 @@
         "古典概率"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-047",
@@ -1554,7 +1554,7 @@
         "最大公约数"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-048",
@@ -1587,7 +1587,7 @@
         "最小公倍数"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-049",
@@ -1620,7 +1620,7 @@
         "余数问题"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-050",
@@ -1653,7 +1653,7 @@
         "整除"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-051",
@@ -1686,7 +1686,7 @@
         "阶乘"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-052",
@@ -1719,7 +1719,7 @@
         "约数"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-053",
@@ -1752,7 +1752,7 @@
         "同余"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-054",
@@ -1785,7 +1785,7 @@
         "最大公约数与最小公倍数"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-055",
@@ -1818,7 +1818,7 @@
         "年龄问题"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-056",
@@ -1851,7 +1851,7 @@
         "鸡兔同笼"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-057",
@@ -1884,7 +1884,7 @@
         "方程应用"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-058",
@@ -1917,7 +1917,7 @@
         "时钟问题"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-059",
@@ -1950,7 +1950,7 @@
         "周期问题"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     },
     {
       "id": "quantitative-060",
@@ -1983,7 +1983,7 @@
         "利润与平均数"
       ],
       "sourceRefs": [],
-      "status": "draft"
+      "status": "reviewed"
     }
   ]
 }

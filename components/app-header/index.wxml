@@ -1,0 +1,8 @@
+<view class="header" style="height: {{resolvedNavHeight}}px;">
+  <view class="header__content">
+    <view class="side side--left" bindtap="back" wx:if="{{canBack}}" aria-role="button" aria-label="返回"><view class="back-button"><text class="back-button__arrow">‹</text></view></view>
+    <view class="side side--left" wx:else></view>
+    <view class="header__title">{{title}}</view>
+    <view class="side side--right" style="right: {{resolvedRightSafeWidth}}px;" bindtap="rightTap">{{rightText}}</view>
+  </view>
+</view>

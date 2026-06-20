@@ -1,0 +1,7 @@
+<view class="page wrong" style="padding-top: {{layout.contentTop}}px;"><view class="fade-top"></view><view class="title">错题本</view><view class="subtitle">把薄弱点逐个击破</view>
+  <scroll-view class="filters" scroll-x><view class="filters__inner"><view class="filter {{active===item.key?'filter--active':''}}" wx:for="{{filters}}" wx:key="key" data-key="{{item.key}}" bindtap="filter">{{item.shortName}}</view></view></scroll-view>
+  <view wx:if="{{items.length}}" class="soft-card summary">共 <text>{{wrongCount}}</text> 道错题 · 本周已巩固 <text>{{reinforcedCount}}</text> 道</view>
+  <view wx:else class="soft-card empty-state"><view class="empty-state__title">{{emptyTitle}}</view><view class="muted">继续练习，系统会自动记录需要巩固的题目</view></view>
+  <view wx:if="{{items.length}}" class="wrong-list"><view class="card wrong-item" wx:for="{{items}}" wx:key="id" data-id="{{item.id}}" bindtap="openItem"><view class="module-icon module-icon--{{item.module.accent}}">{{item.module.shortName}}</view><view class="wrong-content"><view class="{{item.module.accent}}">{{item.module.shortName}}</view><view class="stem">{{item.stem}}</view><view class="row space-between muted"><text>历史记录</text><text class="blue">错 {{item.wrongCount}} 次</text></view></view></view></view>
+  <button class="primary-button" bindtap="practice">{{actionText}}</button>
+</view><bottom-nav active="wrong"></bottom-nav>

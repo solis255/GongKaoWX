@@ -201,7 +201,7 @@ async function runCli(args) {
     return 0;
   }
 
-  const directory = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '题库');
+  const directory = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'questions');
   const result = await validateDirectory(directory);
   if (result.errors.length > 0) {
     console.error(result.errors.join('\n'));

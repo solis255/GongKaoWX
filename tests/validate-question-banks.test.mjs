@@ -153,7 +153,7 @@ test('validateDirectory requires all six banks and totals 360 questions', async 
   assert.equal(result.files.length, 6);
 });
 
-test('CLI validates one bank file and defaults to the question-bank directory', async (t) => {
+test('CLI validates one bank file and defaults to the questions directory', async (t) => {
   const directory = await mkdtemp(path.join(tmpdir(), 'question-bank-cli-'));
   t.after(() => rm(directory, { recursive: true, force: true }));
   const bankPath = path.join(directory, 'politics.json');
@@ -169,6 +169,6 @@ test('CLI validates one bank file and defaults to the question-bank directory', 
   const directoryDefault = spawnSync(process.execPath, [
     path.resolve('scripts/validate-question-banks.mjs'),
   ], { encoding: 'utf8' });
-  assert.equal(directoryDefault.status, 1);
-  assert.match(directoryDefault.stderr, /missing required bank file/);
+  assert.equal(directoryDefault.status, 0);
+  assert.match(directoryDefault.stdout, /Total: 360 questions, valid/);
 });

@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 在项目根目录 `题库/` 中生成六套可由微信小程序直接读取的国考客观题 JSON 题库，每套 60 题，共 360 题，并通过结构、数量、答案和重复性校验。
+**Goal:** 在项目根目录 `questions/` 中生成六套可由微信小程序直接读取的国考客观题 JSON 题库，每套 60 题，共 360 题，并通过结构、数量、答案和重复性校验。
 
 **Architecture:** 先建立统一 JSON Schema、自动校验器和测试，再并行生成六个互不共享写入的题库文件。生成结束后运行全库校验，并由独立复核任务重算数量关系和资料分析题。
 
@@ -12,13 +12,13 @@
 
 ## 文件结构
 
-- Create: `题库/schema.json`，定义题库、材料、题目、选项和来源字段。
-- Create: `题库/politics.json`，政治理论 60 题。
-- Create: `题库/common-sense.json`，常识判断 60 题。
-- Create: `题库/verbal.json`，言语理解与表达 60 题。
-- Create: `题库/quantitative.json`，数量关系 60 题。
-- Create: `题库/reasoning.json`，判断推理 60 题。
-- Create: `题库/data-analysis.json`，资料分析 12 份材料、每份 5 题。
+- Create: `questions/schema.json`，定义题库、材料、题目、选项和来源字段。
+- Create: `questions/politics.json`，政治理论 60 题。
+- Create: `questions/common-sense.json`，常识判断 60 题。
+- Create: `questions/verbal.json`，言语理解与表达 60 题。
+- Create: `questions/quantitative.json`，数量关系 60 题。
+- Create: `questions/reasoning.json`，判断推理 60 题。
+- Create: `questions/data-analysis.json`，资料分析 12 份材料、每份 5 题。
 - Create: `scripts/validate-question-banks.mjs`，执行无需第三方依赖的结构和内容校验。
 - Create: `tests/validate-question-banks.test.mjs`，覆盖合法题库与主要失败分支。
 
@@ -27,7 +27,7 @@
 **Files:**
 - Create: `tests/validate-question-banks.test.mjs`
 - Create: `scripts/validate-question-banks.mjs`
-- Create: `题库/schema.json`
+- Create: `questions/schema.json`
 
 - [ ] **Step 1: 编写失败测试**
 
@@ -53,7 +53,7 @@ Expected: FAIL，错误指向 `scripts/validate-question-banks.mjs` 尚不存在
 
 - [ ] **Step 3: 实现 Schema 和最小校验器**
 
-导出 `validateBank(bank, fileName)` 和 `validateDirectory(directory)`。校验器读取 `题库/*.json`，跳过 `schema.json`，返回按文件分组的错误。命令行接收零个或一个路径参数：无参数时校验整个 `题库/`，传入文件路径时只校验该文件；发现错误时退出码为 1。
+导出 `validateBank(bank, fileName)` 和 `validateDirectory(directory)`。校验器读取 `questions/*.json`，跳过 `schema.json`，返回按文件分组的错误。命令行接收零个或一个路径参数：无参数时校验整个 `questions/`，传入文件路径时只校验该文件；发现错误时退出码为 1。
 
 ```js
 export function validateBank(bank, fileName) {
@@ -80,14 +80,14 @@ Expected: 全部测试 PASS。
 - [ ] **Step 5: 提交契约和校验器**
 
 ```powershell
-git add -- '题库/schema.json' 'scripts/validate-question-banks.mjs' 'tests/validate-question-banks.test.mjs'
+git add -- 'questions/schema.json' 'scripts/validate-question-banks.mjs' 'tests/validate-question-banks.test.mjs'
 git commit -m "test: add question bank validation contract"
 ```
 
 ### Task 2: 生成政治理论题库
 
 **Files:**
-- Create: `题库/politics.json`
+- Create: `questions/politics.json`
 
 - [ ] **Step 1: 检索并记录来源**
 
@@ -99,14 +99,14 @@ git commit -m "test: add question bank validation contract"
 
 - [ ] **Step 3: 校验文件**
 
-Run: `node scripts/validate-question-banks.mjs '题库/politics.json'`
+Run: `node scripts/validate-question-banks.mjs 'questions/politics.json'`
 
 Expected: `politics.json: 60 questions, valid`。
 
 ### Task 3: 生成常识判断题库
 
 **Files:**
-- Create: `题库/common-sense.json`
+- Create: `questions/common-sense.json`
 
 - [ ] **Step 1: 检索并记录来源**
 
@@ -118,14 +118,14 @@ Expected: `politics.json: 60 questions, valid`。
 
 - [ ] **Step 3: 校验文件**
 
-Run: `node scripts/validate-question-banks.mjs '题库/common-sense.json'`
+Run: `node scripts/validate-question-banks.mjs 'questions/common-sense.json'`
 
 Expected: `common-sense.json: 60 questions, valid`。
 
 ### Task 4: 生成言语理解与表达题库
 
 **Files:**
-- Create: `题库/verbal.json`
+- Create: `questions/verbal.json`
 
 - [ ] **Step 1: 研究历年设问方式**
 
@@ -137,14 +137,14 @@ Expected: `common-sense.json: 60 questions, valid`。
 
 - [ ] **Step 3: 校验文件**
 
-Run: `node scripts/validate-question-banks.mjs '题库/verbal.json'`
+Run: `node scripts/validate-question-banks.mjs 'questions/verbal.json'`
 
 Expected: `verbal.json: 60 questions, valid`。
 
 ### Task 5: 生成数量关系题库
 
 **Files:**
-- Create: `题库/quantitative.json`
+- Create: `questions/quantitative.json`
 
 - [ ] **Step 1: 研究历年考点分布**
 
@@ -156,14 +156,14 @@ Expected: `verbal.json: 60 questions, valid`。
 
 - [ ] **Step 3: 校验文件**
 
-Run: `node scripts/validate-question-banks.mjs '题库/quantitative.json'`
+Run: `node scripts/validate-question-banks.mjs 'questions/quantitative.json'`
 
 Expected: `quantitative.json: 60 questions, valid`。
 
 ### Task 6: 生成判断推理题库
 
 **Files:**
-- Create: `题库/reasoning.json`
+- Create: `questions/reasoning.json`
 
 - [ ] **Step 1: 研究历年题型**
 
@@ -175,14 +175,14 @@ Expected: `quantitative.json: 60 questions, valid`。
 
 - [ ] **Step 3: 校验文件**
 
-Run: `node scripts/validate-question-banks.mjs '题库/reasoning.json'`
+Run: `node scripts/validate-question-banks.mjs 'questions/reasoning.json'`
 
 Expected: `reasoning.json: 60 questions, valid`。
 
 ### Task 7: 生成资料分析题库
 
 **Files:**
-- Create: `题库/data-analysis.json`
+- Create: `questions/data-analysis.json`
 
 - [ ] **Step 1: 收集或构造材料数据**
 
@@ -194,15 +194,15 @@ Expected: `reasoning.json: 60 questions, valid`。
 
 - [ ] **Step 3: 校验文件**
 
-Run: `node scripts/validate-question-banks.mjs '题库/data-analysis.json'`
+Run: `node scripts/validate-question-banks.mjs 'questions/data-analysis.json'`
 
 Expected: `data-analysis.json: 60 questions, valid`。
 
 ### Task 8: 独立复核计算题
 
 **Files:**
-- Modify: `题库/quantitative.json`
-- Modify: `题库/data-analysis.json`
+- Modify: `questions/quantitative.json`
+- Modify: `questions/data-analysis.json`
 
 - [ ] **Step 1: 重算数量关系**
 
@@ -221,7 +221,7 @@ Expected: 六个文件全部 valid，总题量 360。
 ### Task 9: 全库验收
 
 **Files:**
-- Modify: `题库/*.json`，只修复验收中发现的问题。
+- Modify: `questions/*.json`，只修复验收中发现的问题。
 
 - [ ] **Step 1: 运行自动测试**
 
@@ -237,13 +237,13 @@ Expected: 六套题库、每套 60 题、总计 360 题，零错误。
 
 - [ ] **Step 3: 检查 JSON 可解析性**
 
-Run: `Get-ChildItem '题库' -Filter '*.json' | ForEach-Object { Get-Content -Raw -Encoding UTF8 $_.FullName | ConvertFrom-Json | Out-Null }`
+Run: `Get-ChildItem 'questions' -Filter '*.json' | ForEach-Object { Get-Content -Raw -Encoding UTF8 $_.FullName | ConvertFrom-Json | Out-Null }`
 
 Expected: 命令退出码为 0，无解析错误。
 
 - [ ] **Step 4: 提交题库**
 
 ```powershell
-git add -- '题库' 'scripts' 'tests'
+git add -- 'questions' 'scripts' 'tests'
 git commit -m "feat: add prototype guokao question banks"
 ```

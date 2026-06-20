@@ -1,0 +1,6 @@
+<view class="page stats"><app-header title="学习统计" right-text="近 7 天"></app-header>
+  <view class="gradient-card stats-hero"><view><text>本周完成</text><view>{{weekTotal}}<text>题</text></view></view><view class="line"></view><view><text>正确率</text><view>{{accuracy}}<text>%</text></view></view></view>
+  <view class="card chart"><view class="section-title">每日完成题数</view><view class="bars"><view class="bar-col" wx:for="{{bars}}" wx:key="day"><view class="bar-value">{{item.count}}</view><view class="bar {{item.today?'bar--today':''}}" style="height: {{item.value*3}}rpx"></view><view class="muted">{{item.day}}</view></view></view></view>
+  <view class="card ability"><view class="section-title">模块能力</view><view class="ability-row" wx:for="{{modules}}" wx:key="key"><view class="ability-name">{{item.name}}</view><view class="ability-progress"><progress-bar value="{{item.score}}" accent="{{item.accent}}"></progress-bar></view><view class="{{item.accent}}">{{item.score}}%</view></view></view>
+  <view class="card totals"><view class="row space-between"><text>连续学习</text><text class="green">{{streak}} 天</text></view><view class="row space-between"><text>累计答题</text><text class="blue">{{total}}</text></view></view>
+</view>

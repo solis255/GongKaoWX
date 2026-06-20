@@ -1,0 +1,9 @@
+<view class="page list-page"><app-header title="我的收藏"></app-header>
+  <view wx:if="{{items.length}}" class="list">
+    <view class="card item" wx:for="{{items}}" wx:key="id" data-id="{{item.id}}" bindtap="open">
+      <view class="row space-between"><text class="tag">{{item.module.shortName}}</text><text class="remove" data-id="{{item.id}}" catchtap="remove">取消收藏</text></view>
+      <view class="stem">{{item.stem}}</view><view class="muted">{{item.timeText}}</view>
+    </view>
+  </view>
+  <view wx:else class="empty"><view class="empty__icon">☆</view><view class="empty__title">还没有收藏题目</view><view class="muted">遇到值得回看的题，点一下收藏就会出现在这里</view><button class="primary-button" bindtap="openBank">去题库看看</button></view>
+</view>
