@@ -57,7 +57,7 @@
   },
   "compileType": "miniprogram",
   "libVersion": "3.6.5",
-  "appid": "wx9652b13f4608d4f5",
+  "appid": "touristappid",
   "projectname": "GongKaoWX",
   "miniprogramRoot": "./",
   "simulatorPluginLibVersion": {},
