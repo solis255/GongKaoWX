@@ -45,6 +45,15 @@ test('appends normalized answer events and validates daily goal', () => {
 
   assert.equal(saved.answeredAt, 1000);
   assert.deepEqual(storage.getAnswerEvents(), [saved]);
+  const multipleSaved = storage.saveAnswerEvent({
+    questionId: 'private-001',
+    moduleKey: 'user-bank-001',
+    userAnswer: ['A', 'C'],
+    correct: true,
+    elapsedMs: 800,
+  }, 2000);
+  assert.deepEqual(multipleSaved.userAnswer, ['A', 'C']);
+  assert.deepEqual(storage.getAnswerEvents(), [saved, multipleSaved]);
   assert.equal(storage.getDailyGoal(), 20);
   assert.equal(storage.saveDailyGoal(50), 50);
   assert.equal(storage.getDailyGoal(), 50);
@@ -84,4 +93,24 @@ test('stores favorite timestamps while preserving and migrating the id API', () 
   storage.toggleFavorite('legacy-001', 2000);
   assert.deepEqual(storage.getFavoriteIds(), ['verbal-001']);
   assert.deepEqual(storage.getFavorites(), [{ questionId: 'verbal-001', favoritedAt: 1000 }]);
+});
+
+test('removes all learning data associated with a permanently deleted private bank', () => {
+  const values = new Map();
+  const storage = createStorage({
+    get: (key) => values.get(key),
+    set: (key, value) => values.set(key, value),
+  });
+  storage.toggleFavorite('user-bank:question-001', 1000);
+  storage.saveAnswerEvent({
+    questionId: 'user-bank:question-001', moduleKey: 'user-bank', correct: false,
+  }, 1000);
+  storage.saveAnswerEvent({ questionId: 'verbal-001', moduleKey: 'verbal', correct: true }, 1000);
+  storage.savePractice({ moduleKey: 'user-bank', total: 1, correct: 0 });
+  storage.savePractice({ moduleKey: 'verbal', total: 1, correct: 1 });
+
+  storage.removeQuestionData(['user-bank:question-001'], 'user-bank');
+  assert.deepEqual(storage.getFavoriteIds(), []);
+  assert.deepEqual(storage.getAnswerEvents().map(({ questionId }) => questionId), ['verbal-001']);
+  assert.deepEqual(storage.getHistory().map(({ moduleKey }) => moduleKey), ['verbal']);
 });

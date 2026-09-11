@@ -12,7 +12,10 @@
     "pages/profile/index",
     "pages/goal/index",
     "pages/favorites/index",
-    "pages/history/index"
+    "pages/history/index",
+    "pages/import-bank/index",
+    "pages/bank-trash/index",
+    "pages/subjects/index"
   ],
   "window": {
     "navigationStyle": "custom",

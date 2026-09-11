@@ -1,0 +1,26 @@
+<view class="page import-page">
+  <app-header title="导入私人题库"></app-header>
+  <view class="card subject-card">
+    <view><view class="subject-label">所属科目</view><view class="muted">每个题库必须设置一个科目</view></view>
+    <picker wx:if="{{subjects.length}}" mode="selector" range="{{subjectNames}}" value="{{subjectIndex}}" bindchange="chooseSubject"><view class="subject-picker">{{subjectNames[subjectIndex]}}⌄</view></picker>
+    <view wx:else class="subject-create" bindtap="createSubject">＋ 新建科目</view>
+  </view>
+  <view class="manage-subjects" bindtap="manageSubjects">管理自定义科目</view>
+  <view wx:if="{{state==='idle'}}" class="upload-card card" bindtap="chooseFile">
+    <view class="upload-icon">JSON</view><view class="upload-title">选择题库文件</view><view class="muted">支持符合私人题库 V1 Schema 的 UTF-8 JSON，最大 10MB</view>
+  </view>
+  <view wx:elif="{{state==='reading'}}" class="reading"><view class="reading-dot"></view><view>正在读取并校验 {{fileName}}</view></view>
+  <view wx:else class="preview">
+    <view class="card file-card"><view class="row space-between"><view><view class="file-name">{{fileName}}</view><view class="muted">校验完成</view></view><view class="change" bindtap="reset">重新选择</view></view></view>
+    <view class="summary-grid">
+      <view class="card"><text>{{summary.total}}</text><view>识别题目</view></view><view class="card valid"><text>{{summary.valid}}</text><view>可导入</view></view><view class="card warning"><text>{{summary.invalid}}</text><view>格式错误</view></view><view class="card"><text>{{summary.duplicate}}</text><view>文件内重复</view></view>
+    </view>
+    <view wx:if="{{summary.crossBankDuplicate}}" class="soft-card cross-note">有 {{summary.crossBankDuplicate}} 题与其他题库内容相同；跨题库重复允许导入，学习记录分别统计。</view>
+    <view wx:if="{{fatalErrors.length}}" class="card issue-card issue-card--fatal"><view class="issue-title">无法导入</view><view wx:for="{{fatalErrors}}" wx:key="*this">{{item}}</view></view>
+    <view wx:if="{{issues.length}}" class="card issue-card"><view class="issue-title">格式问题</view><view wx:for="{{issues}}" wx:key="*this">{{item}}</view></view>
+    <view wx:if="{{duplicates.length}}" class="card issue-card"><view class="issue-title">重复题目</view><view wx:for="{{duplicates}}" wx:key="*this">{{item}}</view></view>
+    <view wx:if="{{canImport&&summary.invalid}}" class="muted import-note">格式错误的题目不会写入，只导入通过校验的题目。</view>
+    <view wx:if="{{validationPassed&&!subjectId}}" class="muted import-note">请先新建并选择所属科目。</view>
+    <button class="primary-button import-button" disabled="{{!canImport||importing}}" bindtap="confirmImport">{{importing?'正在写入…':'确认导入 '+summary.valid+' 题'}}</button>
+  </view>
+</view>

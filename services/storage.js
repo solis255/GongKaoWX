@@ -107,6 +107,20 @@ function createStorage(adapter = defaultAdapter()) {
     },
     getSettings: () => adapter.get(KEYS.settings) || null,
     saveSettings: (settings) => adapter.set(KEYS.settings, settings),
+    removeQuestionData(questionIds, moduleKey) {
+      const ids = new Set(Array.isArray(questionIds) ? questionIds : []);
+      if (!ids.size && !moduleKey) return;
+      adapter.set(KEYS.wrong, readList(KEYS.wrong).filter((id) => !ids.has(id)));
+      const favoriteRecords = getFavorites().filter(({ questionId }) => !ids.has(questionId));
+      adapter.set(KEYS.favoriteRecords, favoriteRecords);
+      adapter.set(KEYS.favorites, favoriteRecords.map(({ questionId }) => questionId));
+      adapter.set(KEYS.attempts, readList(KEYS.attempts).filter((event) => (
+        !ids.has(event?.questionId) && (!moduleKey || event?.moduleKey !== moduleKey)
+      )));
+      adapter.set(KEYS.history, readList(KEYS.history).filter((record) => (
+        !moduleKey || record?.moduleKey !== moduleKey
+      )));
+    },
   };
 }
 

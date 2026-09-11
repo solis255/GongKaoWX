@@ -1,4 +1,4 @@
-const { getQuestionById, listModules } = require('../../services/question-bank');
+const { getQuestionById, listAllBanks } = require('../../services/question-bank');
 const { createSession } = require('../../services/practice-session');
 
 function formatTime(timestamp) {
@@ -12,7 +12,7 @@ Page({
   onShow() { this.refresh(); },
   refresh() {
     const storage = getApp().globalData.storage;
-    const modules = new Map(listModules().map((item) => [item.key, item]));
+    const modules = new Map(listAllBanks().map((item) => [item.key, item]));
     const items = storage.getFavorites()
       .map((record) => ({ record, question: getQuestionById(record.questionId) }))
       .filter(({ question }) => question)

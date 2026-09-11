@@ -1,5 +1,5 @@
 const { summarizeSession } = require('../../services/practice-session');
-const { listModules } = require('../../services/question-bank');
+const { listAllBanks } = require('../../services/question-bank');
 Page({
   data: { layout: {}, summary: null, module: null, minutes: 0, seconds: 0, averageSeconds: 0, streak: 0 },
   onLoad() {
@@ -7,7 +7,8 @@ Page({
     const session = app.globalData.session;
     if (!session) { wx.reLaunch({ url: '/pages/home/index' }); return; }
     const summary = summarizeSession(session);
-    const module = listModules().find(({ key }) => key === session.moduleKey) || { name: '综合随机练习' };
+    const module = listAllBanks().find(({ key }) => key === session.moduleKey)
+      || { name: session.settings?.title || '综合随机练习' };
     app.globalData.storage.savePractice({ moduleKey: session.moduleKey, ...summary });
     this.setData({
       layout: app.globalData.layout,
@@ -24,7 +25,7 @@ Page({
     const app = getApp();
     const session = app.globalData.session;
     const mixed = session.settings?.mode === 'mixed';
-    const moduleKey = session.questions[0]?.moduleKey || session.moduleKey || 'verbal';
+    const moduleKey = session.questions[0]?.moduleKey || session.moduleKey;
     app.globalData.practiceMode = mixed ? 'mixed' : 'module';
     app.globalData.moduleKey = mixed ? null : moduleKey;
     wx.redirectTo({ url: mixed ? '/pages/practice-setup/index?mode=mixed' : `/pages/practice-setup/index?mode=module&module=${moduleKey}` });

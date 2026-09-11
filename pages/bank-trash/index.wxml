@@ -1,0 +1,4 @@
+<view class="page trash-page"><app-header title="题库回收站"></app-header>
+  <view wx:if="{{items.length}}" class="trash-list"><view class="card trash-item" wx:for="{{items}}" wx:key="id"><view><view class="trash-name">{{item.name}}</view><view class="muted">{{item.questionCount}} 题 · {{item.timeText}}</view></view><view class="trash-actions"><text data-id="{{item.id}}" bindtap="restore">恢复</text><text class="danger" data-id="{{item.id}}" bindtap="remove">永久删除</text></view></view></view>
+  <view wx:else class="empty"><view class="empty-title">回收站为空</view><view class="muted">删除的私人题库会先保存在这里</view></view>
+</view>

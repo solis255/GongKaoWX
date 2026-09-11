@@ -1,5 +1,5 @@
 const { getHistoryRows } = require('../../services/user-progress');
-const { getQuestionById, listModules } = require('../../services/question-bank');
+const { getQuestionById, listAllBanks } = require('../../services/question-bank');
 const { createSession } = require('../../services/practice-session');
 
 function formatTime(timestamp) {
@@ -10,7 +10,7 @@ function formatTime(timestamp) {
 Page({
   data: { items: [] },
   onShow() {
-    const modules = new Map(listModules().map((item) => [item.key, item]));
+    const modules = new Map(listAllBanks().map((item) => [item.key, item]));
     const items = getHistoryRows(getApp().globalData.storage.getAnswerEvents())
       .map((row) => ({ row, question: getQuestionById(row.questionId) }))
       .filter(({ question }) => question)

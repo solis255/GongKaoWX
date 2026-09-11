@@ -1,4 +1,4 @@
-const { currentQuestion, moveNext, movePrevious } = require('../../services/practice-session');
+const { currentQuestion, moveNext, movePrevious, getQuestionType } = require('../../services/practice-session');
 const { loadBank } = require('../../services/question-bank');
 
 Page({
@@ -13,12 +13,25 @@ Page({
     const record = session.answers[session.currentIndex];
     const bank = loadBank(question.moduleKey || session.moduleKey);
     const material = question.materialId ? bank.materials.find(({ id }) => id === question.materialId) : null;
+    const correctKeys = new Set(Array.isArray(question.answer) ? question.answer : [question.answer]);
+    const chosenKeys = new Set(Array.isArray(record.userAnswer) ? record.userAnswer : [record.userAnswer]);
+    const questionView = {
+      ...question,
+      options: question.options.map((option) => ({
+        ...option,
+        correct: correctKeys.has(option.key),
+        chosen: chosenKeys.has(option.key),
+        wrong: chosenKeys.has(option.key) && !correctKeys.has(option.key),
+      })),
+    };
     const sources = (Array.isArray(question.sourceRefs) ? question.sourceRefs : []).map((source) => ({
       ...source,
       kindText: source.kind === 'official' ? '官方资料' : '参考资料',
     }));
     this.setData({
-      question, material, record, sources,
+      question: questionView, material, record, sources,
+      questionTypeText: getQuestionType(question) === 'multiple-choice' ? '多选题' : '单选题',
+      answerText: [...correctKeys].join('、'),
       correct: record.correct,
       index: session.currentIndex + 1,
       total: session.questions.length,

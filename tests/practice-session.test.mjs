@@ -88,3 +88,39 @@ test('restores answered state while moving backward and forward', () => {
   assert.equal(session.selectedAnswer, null);
   assert.equal(session.submitted, false);
 });
+
+test('supports toggling and order-independent grading for multiple-choice answers', () => {
+  const question = {
+    id: 'multi-001',
+    type: 'multiple-choice',
+    options: [
+      { key: 'A', text: 'A' }, { key: 'B', text: 'B' },
+      { key: 'C', text: 'C' }, { key: 'D', text: 'D' },
+    ],
+    answer: ['A', 'C'],
+  };
+  let session = createSession('private', [question]);
+  session = selectAnswer(session, ['C', 'A']);
+  assert.deepEqual(session.selectedAnswer, ['A', 'C']);
+  session = submitAnswer(session, 500);
+  assert.deepEqual(session.answers[0].userAnswer, ['A', 'C']);
+  assert.equal(session.answers[0].correct, true);
+});
+
+test('marks incomplete or extra multiple-choice selections wrong and rejects invalid arrays', () => {
+  const question = {
+    id: 'multi-002',
+    type: 'multiple-choice',
+    options: [
+      { key: 'A', text: 'A' }, { key: 'B', text: 'B' },
+      { key: 'C', text: 'C' }, { key: 'D', text: 'D' },
+    ],
+    answer: ['A', 'C'],
+  };
+  let session = createSession('private', [question]);
+  assert.throws(() => selectAnswer(session, 'A'), /invalid answer/i);
+  assert.throws(() => selectAnswer(session, ['A', 'E']), /invalid answer/i);
+  session = selectAnswer(session, ['A']);
+  session = submitAnswer(session);
+  assert.equal(session.answers[0].correct, false);
+});

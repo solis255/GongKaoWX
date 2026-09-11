@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "subject": "示例科目",
+  "category": "私人题库",
+  "title": "私人题库导入示例",
+  "description": "用于测试小程序内 JSON 导入功能",
+  "questionCount": 2,
+  "materials": [
+    {
+      "id": "material-001",
+      "title": "示例材料",
+      "content": "某地持续完善公共服务设施，并通过数字化方式提高办事效率。",
+      "sourceRefs": []
+    }
+  ],
+  "questions": [
+    {
+      "id": "question-001",
+      "type": "single-choice",
+      "category": "示例分类",
+      "subtype": "基础判断",
+      "difficulty": "easy",
+      "stem": "以下哪一个选项是本题的正确答案？",
+      "materialId": null,
+      "options": [
+        { "key": "A", "text": "正确选项" },
+        { "key": "B", "text": "干扰选项一" },
+        { "key": "C", "text": "干扰选项二" },
+        { "key": "D", "text": "干扰选项三" }
+      ],
+      "answer": "A",
+      "explanation": "这是一个用于验证导入流程的普通单选题。",
+      "knowledgePoints": ["导入测试"],
+      "sourceRefs": [],
+      "status": "draft"
+    },
+    {
+      "id": "question-002",
+      "type": "multiple-choice",
+      "category": "示例分类",
+      "subtype": "材料阅读",
+      "difficulty": "unknown",
+      "stem": "根据材料，该地提高办事效率采用的方式是：",
+      "materialId": "material-001",
+      "options": [
+        { "key": "A", "text": "减少公共服务" },
+        { "key": "B", "text": "数字化方式" },
+        { "key": "C", "text": "停止设施建设" },
+        { "key": "D", "text": "完善公共服务设施" }
+      ],
+      "answer": ["B", "D"],
+      "explanation": "材料提到完善公共服务设施，并通过数字化方式提高办事效率。",
+      "knowledgePoints": [],
+      "sourceRefs": [],
+      "status": "draft"
+    }
+  ]
+}

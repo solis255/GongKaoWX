@@ -1,4 +1,4 @@
-const { listModules } = require('../../services/question-bank');
+const { listSubjectSummaries } = require('../../services/question-bank');
 const { getProfileStats } = require('../../services/user-progress');
 Page({
   data: {
@@ -22,8 +22,9 @@ Page({
       return { day, count: events.filter(({ answeredAt }) => answeredAt >= start.getTime() && answeredAt < end.getTime()).length, today: start.toDateString() === now.toDateString() };
     });
     const max = Math.max(1, ...counts.map(({ count }) => count));
-    const modules = listModules().map((module) => {
-      const scoped = events.filter(({ moduleKey }) => moduleKey === module.key);
+    const modules = listSubjectSummaries().map((module) => {
+      const keys = new Set(module.bankKeys);
+      const scoped = events.filter(({ moduleKey }) => keys.has(moduleKey));
       const correct = scoped.filter(({ correct }) => correct).length;
       return { ...module, score: scoped.length ? Math.round(correct / scoped.length * 100) : 0 };
     });

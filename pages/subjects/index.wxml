@@ -1,0 +1,17 @@
+<view class="page subjects-page">
+  <app-header title="科目管理"></app-header>
+  <view class="card create-card">
+    <view class="section-title">新增科目</view>
+    <view class="create-row"><input maxlength="20" value="{{draft}}" placeholder="例如：事业单位、教师招聘" bindinput="inputDraft" /><button class="primary-button" disabled="{{!draft}}" bindtap="add">创建</button></view>
+  </view>
+  <view class="muted tip">科目用于整理题库和汇总学习进度。仍被题库或回收站使用的科目不能删除。</view>
+  <view wx:if="{{subjects.length}}" class="card subject-list">
+    <view class="subject-row" wx:for="{{subjects}}" wx:key="id">
+      <view class="subject-icon">{{item.shortName}}</view>
+      <view class="subject-info"><view>{{item.name}}</view><text class="muted">{{item.bankCount}} 个题库</text></view>
+      <view class="subject-action" data-id="{{item.id}}" bindtap="rename">改名</view>
+      <view class="subject-action danger" data-id="{{item.id}}" bindtap="remove">删除</view>
+    </view>
+  </view>
+  <view wx:else class="empty muted">还没有科目，请先创建一个科目再导入题库。</view>
+</view>

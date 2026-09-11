@@ -1,4 +1,4 @@
-const { listModules } = require('../../services/question-bank');
+const { listAllBanks, listSubjectSummaries } = require('../../services/question-bank');
 const { getGreeting, getDateCard, getModuleProgress, getWrongSnapshot, getTodayCount, getProfileStats } = require('../../services/user-progress');
 
 Page({
@@ -20,9 +20,9 @@ Page({
     const todayDone = getTodayCount(events, now);
     const todayGoal = storage.getDailyGoal();
     const stats = getProfileStats(events, storage.getFavoriteIds(), now);
-    const modules = listModules().map((module) => {
-      const done = completed[module.key] || 0;
-      return { ...module, done, progress: module.questionCount ? Math.round(done / module.questionCount * 100) : 0 };
+    const modules = listSubjectSummaries().map((subject) => {
+      const done = subject.bankKeys.reduce((sum, key) => sum + (completed[key] || 0), 0);
+      return { ...subject, done, progress: subject.questionCount ? Math.round(done / subject.questionCount * 100) : 0 };
     });
     this.setData({
       layout: app.globalData.layout,
@@ -31,18 +31,26 @@ Page({
       todayDone, todayGoal, todayProgress: Math.min(100, Math.round(todayDone / todayGoal * 100)),
     });
   },
-  openModule(event) {
+  openSubject(event) {
     const app = getApp();
-    app.globalData.practiceMode = 'module';
-    app.globalData.moduleKey = event.currentTarget.dataset.key;
-    wx.navigateTo({ url: `/pages/practice-setup/index?mode=module&module=${app.globalData.moduleKey}` });
+    const subject = this.data.modules.find(({ key }) => key === event.currentTarget.dataset.key);
+    if (!subject?.bankKeys.length) { wx.showToast({ title: '该科目还没有题库', icon: 'none' }); return; }
+    app.globalData.practiceMode = 'mixed';
+    app.globalData.moduleKey = null;
+    app.globalData.mixedModuleKeys = subject.bankKeys;
+    app.globalData.practiceTitle = subject.name;
+    wx.navigateTo({ url: '/pages/practice-setup/index?mode=mixed' });
   },
   continuePractice() {
     const app = getApp();
     const { session } = app.globalData;
     if (session) { wx.navigateTo({ url: session.submitted ? '/pages/analysis/index' : '/pages/question/index' }); return; }
+    const banks = listAllBanks();
+    const bank = banks.find(({ key }) => key === app.globalData.moduleKey) || banks[0];
+    if (!bank) { wx.reLaunch({ url: '/pages/bank/index' }); return; }
     app.globalData.practiceMode = 'module';
-    wx.navigateTo({ url: `/pages/practice-setup/index?mode=module&module=${app.globalData.moduleKey || 'verbal'}` });
+    app.globalData.moduleKey = bank.key;
+    wx.navigateTo({ url: `/pages/practice-setup/index?mode=module&module=${bank.key}` });
   },
   openWrong() { wx.reLaunch({ url: '/pages/wrong/index' }); },
   openGoal() { wx.navigateTo({ url: '/pages/goal/index' }); }

@@ -1,46 +1,84 @@
-const BANKS = {
-  politics: require('../questions/generated/politics.js'),
-  'common-sense': require('../questions/generated/common-sense.js'),
-  verbal: require('../questions/generated/verbal.js'),
-  quantitative: require('../questions/generated/quantitative.js'),
-  reasoning: require('../questions/generated/reasoning.js'),
-  'data-analysis': require('../questions/generated/data-analysis.js'),
-};
+let userBankStorage = null;
+let subjectStorage = null;
 
-const MODULES = [
-  { key: 'politics', name: '政治理论', shortName: '政治', accent: 'green' },
-  { key: 'common-sense', name: '常识判断', shortName: '常识', accent: 'blue' },
-  { key: 'verbal', name: '言语理解', shortName: '言语', accent: 'green' },
-  { key: 'quantitative', name: '数量关系', shortName: '数量', accent: 'blue' },
-  { key: 'reasoning', name: '判断推理', shortName: '推理', accent: 'green' },
-  { key: 'data-analysis', name: '资料分析', shortName: '资料', accent: 'blue' },
-];
+function configureQuestionBankStorage(bankStorage, customSubjectStorage) {
+  userBankStorage = bankStorage || null;
+  subjectStorage = customSubjectStorage || null;
+}
 
 function isValidQuestion(question) {
   if (!Array.isArray(question?.options) || question.options.length !== 4) return false;
   const keys = question.options.map((option) => option?.key).join(',');
+  const type = question?.type || 'single-choice';
+  const answerIsValid = type === 'multiple-choice'
+    ? Array.isArray(question.answer)
+      && question.answer.length >= 2
+      && new Set(question.answer).size === question.answer.length
+      && question.answer.every((answer) => ['A', 'B', 'C', 'D'].includes(answer))
+    : type === 'single-choice'
+      && typeof question.answer === 'string'
+      && ['A', 'B', 'C', 'D'].includes(question.answer);
   return Boolean(
     question?.id
       && question?.stem
       && keys === 'A,B,C,D'
-      && question.options.some((option) => option?.key === question.answer),
+      && answerIsValid,
   );
 }
 
-function listModules() {
-  return MODULES.map((module) => ({
-    ...module,
-    questionCount: BANKS[module.key].questions.filter(isValidQuestion).length,
+function listUserBanks(options = {}) {
+  if (!userBankStorage) return [];
+  const subjectMap = new Map(
+    (subjectStorage ? subjectStorage.listSubjects() : []).map((subject) => [subject.id, subject]),
+  );
+  const manifests = options.includeTrash
+    ? userBankStorage.listAllBanks()
+    : userBankStorage.listBanks();
+  return manifests.map((manifest, index) => ({
+    key: manifest.id,
+    name: manifest.name,
+    shortName: manifest.name.slice(0, 2),
+    accent: index % 2 ? 'blue' : 'green',
+    questionCount: manifest.questionCount,
+    userBank: true,
+    status: manifest.status,
+    importedAt: manifest.importedAt,
+    subjectId: manifest.subjectId || '',
+    subjectName: subjectMap.get(manifest.subjectId)?.name || '未分类',
   }));
 }
 
+function listAllBanks() {
+  return listUserBanks();
+}
+
+function listSubjectSummaries() {
+  if (!subjectStorage) return [];
+  const banks = listUserBanks();
+  return subjectStorage.listSubjects().map((subject, index) => {
+    const subjectBanks = banks.filter((bank) => bank.subjectId === subject.id);
+    return {
+      key: subject.id,
+      name: subject.name,
+      shortName: subject.name.slice(0, 2),
+      accent: index % 2 ? 'blue' : 'green',
+      bankCount: subjectBanks.length,
+      bankKeys: subjectBanks.map(({ key }) => key),
+      questionCount: subjectBanks.reduce((sum, bank) => sum + bank.questionCount, 0),
+    };
+  });
+}
+
 function loadBank(moduleKey) {
-  const bank = BANKS[moduleKey];
-  if (!bank) throw new Error(`Unknown module: ${moduleKey}`);
-  return {
-    ...bank,
-    questions: bank.questions.filter(isValidQuestion),
-  };
+  if (userBankStorage) {
+    try {
+      const userBank = userBankStorage.loadBank(moduleKey);
+      return { ...userBank, questions: userBank.questions.filter(isValidQuestion) };
+    } catch (error) {
+      // Fall through to the stable public error below.
+    }
+  }
+  throw new Error(`Unknown question bank: ${moduleKey}`);
 }
 
 function shuffle(items) {
@@ -60,16 +98,24 @@ function pickQuestions(moduleKey, count = 20, random = false, excludeIds = []) {
 }
 
 function getQuestionById(id) {
-  for (const { key: moduleKey } of MODULES) {
-    const question = loadBank(moduleKey).questions.find((item) => item.id === id);
-    if (question) return { ...question, moduleKey };
+  if (userBankStorage && typeof id === 'string') {
+    const separator = id.indexOf(':');
+    if (separator > 0) {
+      const moduleKey = id.slice(0, separator);
+      try {
+        const question = loadBank(moduleKey).questions.find((item) => item.id === id);
+        if (question) return { ...question, moduleKey };
+      } catch (error) {
+        return undefined;
+      }
+    }
   }
   return undefined;
 }
 
 function pickMixedQuestions(count = 20, options = {}) {
   const normalizedOptions = options ?? {};
-  const defaultModuleKeys = MODULES.map(({ key }) => key);
+  const defaultModuleKeys = listAllBanks().map(({ key }) => key);
   const selectedModuleKeys = Array.isArray(normalizedOptions.moduleKeys)
     ? normalizedOptions.moduleKeys
     : defaultModuleKeys;
@@ -99,7 +145,10 @@ function pickMixedQuestions(count = 20, options = {}) {
 }
 
 module.exports = {
-  listModules,
+  configureQuestionBankStorage,
+  listUserBanks,
+  listAllBanks,
+  listSubjectSummaries,
   loadBank,
   pickQuestions,
   getQuestionById,

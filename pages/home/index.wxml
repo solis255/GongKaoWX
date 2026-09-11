@@ -12,13 +12,14 @@
   </view>
   <view class="section-title">科目练习</view>
   <view class="module-list">
-    <view class="module-row" wx:for="{{modules}}" wx:key="key" data-key="{{item.key}}" bindtap="openModule">
+    <view class="module-row" wx:for="{{modules}}" wx:key="key" data-key="{{item.key}}" bindtap="openSubject">
       <view class="module-icon module-icon--{{item.accent}}">{{item.shortName}}</view>
       <view class="module-name">{{item.name}}</view>
       <view class="module-progress"><progress-bar value="{{item.progress}}" accent="{{item.accent}}"></progress-bar></view>
       <view class="module-count {{item.accent}}">{{item.done}}/{{item.questionCount}}</view>
     </view>
   </view>
+  <view wx:if="{{!modules.length}}" class="soft-card reminder" bindtap="continuePractice"><view><view class="reminder__title">还没有科目和题库</view><view class="muted">前往题库页创建科目并导入 JSON</view></view><view class="green">去导入</view></view>
   <button class="primary-button continue" bindtap="continuePractice">继续刷题</button>
   <view class="soft-card reminder" bindtap="openWrong">
     <view><view class="reminder__title">错题复习提醒</view><view class="muted">你有 <text class="green">{{wrongCount}}</text> 道错题未复习</view></view>

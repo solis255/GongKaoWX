@@ -15,24 +15,57 @@ function currentQuestion(session) {
   return session.questions[session.currentIndex] || null;
 }
 
+function getQuestionType(question) {
+  return question?.type === 'multiple-choice' ? 'multiple-choice' : 'single-choice';
+}
+
+function normalizeAnswer(question, answer) {
+  const keys = Array.isArray(question?.options) ? question.options.map(({ key }) => key) : [];
+  if (getQuestionType(question) === 'multiple-choice') {
+    if (!Array.isArray(answer)) throw new Error(`Invalid answer: ${answer}`);
+    const unique = [...new Set(answer)];
+    if (unique.some((key) => !keys.includes(key))) throw new Error(`Invalid answer: ${answer}`);
+    return keys.filter((key) => unique.includes(key));
+  }
+  if (typeof answer !== 'string' || !keys.includes(answer)) throw new Error(`Invalid answer: ${answer}`);
+  return answer;
+}
+
+function hasSelectedAnswer(answer) {
+  return Array.isArray(answer) ? answer.length > 0 : Boolean(answer);
+}
+
+function answersEqual(question, first, second) {
+  try {
+    const left = normalizeAnswer(question, first);
+    const right = normalizeAnswer(question, second);
+    if (Array.isArray(left) && Array.isArray(right)) {
+      return left.length === right.length && left.every((key, index) => key === right[index]);
+    }
+    return left === right;
+  } catch (error) {
+    return false;
+  }
+}
+
 function selectAnswer(session, answer) {
   const question = currentQuestion(session);
-  if (!question?.options?.some(({ key }) => key === answer)) {
-    throw new Error(`Invalid answer: ${answer}`);
-  }
+  const normalized = normalizeAnswer(question, answer);
   if (session.submitted) return session;
-  return { ...session, selectedAnswer: answer };
+  return { ...session, selectedAnswer: normalized };
 }
 
 function submitAnswer(session, elapsedMs = 0) {
   const question = currentQuestion(session);
   if (!question) throw new Error('No current question');
-  if (!session.selectedAnswer) throw new Error('Select an answer before submitting');
+  if (!hasSelectedAnswer(session.selectedAnswer)) throw new Error('Select an answer before submitting');
   if (session.submitted) return session;
   const record = {
     questionId: question.id,
-    userAnswer: session.selectedAnswer,
-    correct: session.selectedAnswer === question.answer,
+    userAnswer: Array.isArray(session.selectedAnswer)
+      ? session.selectedAnswer.slice()
+      : session.selectedAnswer,
+    correct: answersEqual(question, session.selectedAnswer, question.answer),
     elapsedMs: Math.max(0, Number(elapsedMs) || 0),
   };
   return { ...session, submitted: true, answers: [...session.answers, record] };
@@ -95,6 +128,10 @@ function summarizeSession(session) {
 module.exports = {
   createSession,
   currentQuestion,
+  getQuestionType,
+  normalizeAnswer,
+  hasSelectedAnswer,
+  answersEqual,
   selectAnswer,
   submitAnswer,
   moveNext,

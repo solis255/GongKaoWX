@@ -4,10 +4,10 @@
     <view class="analysis-content">
       <view wx:if="{{material}}" class="material">{{material.content}}</view>
       <view class="card question-summary">
-        <view class="row space-between"><view class="tag">{{question.category}} · {{question.subtype}}</view><view class="muted">单选题</view></view>
+        <view class="row space-between"><view class="tag">{{question.category}} · {{question.subtype}}</view><view class="muted">{{questionTypeText}}</view></view>
         <view class="summary-stem">{{question.stem}}</view>
         <view class="analysis-options">
-          <view wx:for="{{question.options}}" wx:key="key" class="option-line {{item.key===question.answer?'option-line--correct':''}} {{item.key===record.userAnswer?'option-line--chosen':''}}">
+          <view wx:for="{{question.options}}" wx:key="key" class="option-line {{item.correct?'option-line--correct':''}} {{item.chosen?'option-line--chosen':''}} {{item.wrong?'option-line--wrong':''}}">
             <view class="option-key">{{item.key}}</view><view>{{item.text}}</view>
           </view>
         </view>
@@ -15,7 +15,7 @@
       <view class="result-banner {{correct?'result-banner--correct':'result-banner--wrong'}}"><view>{{correct?'回答正确':'回答错误'}}</view><view>用时 <text>{{seconds}}</text> 秒</view></view>
       <view class="card explanation">
         <view class="section-title">答案解析</view>
-        <view class="correct-answer">正确答案 <text>{{question.answer}}</text></view>
+        <view class="correct-answer">正确答案 <text>{{answerText}}</text></view>
         <view class="explanation-text">{{question.explanation}}</view>
         <view class="muted knowledge-title">相关知识点</view>
         <view class="knowledge"><view class="tag" wx:for="{{question.knowledgePoints}}" wx:key="*this">{{item}}</view></view>

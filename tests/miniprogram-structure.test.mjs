@@ -23,6 +23,9 @@ test('registers all designed and user-data screens', () => {
     'pages/goal/index',
     'pages/favorites/index',
     'pages/history/index',
+    'pages/import-bank/index',
+    'pages/bank-trash/index',
+    'pages/subjects/index',
   ]);
 });
 
@@ -59,8 +62,13 @@ test('question submission guards an already submitted session before persisting 
 
 test('question page opens the card and supports previous navigation', () => {
   const script = fs.readFileSync(path.join(root, 'pages/question/index.js'), 'utf8');
+  const markup = fs.readFileSync(path.join(root, 'pages/question/index.wxml'), 'utf8');
   assert.match(script, /pages\/question-card\/index/);
   assert.match(script, /movePrevious/);
+  assert.match(script, /multiple-choice/);
+  assert.match(script, /selected\.includes\(key\)/);
+  assert.match(markup, /多选题/);
+  assert.match(markup, /item\.selected/);
   assert.doesNotMatch(script, /已完成.*题/);
 });
 
@@ -71,6 +79,10 @@ test('analysis uses local sources, a scroll view, and real card navigation', () 
   assert.match(script, /setClipboardData/);
   assert.match(script, /pages\/question-card\/index/);
   assert.match(script, /movePrevious/);
+  assert.match(script, /answerText/);
+  assert.match(markup, /questionTypeText/);
+  assert.match(markup, /item\.correct/);
+  assert.match(markup, /item\.chosen/);
   assert.match(markup, /<scroll-view[^>]*scroll-y/);
   assert.match(markup, /wx:if="\{\{sources\.length\}\}"/);
   assert.doesNotMatch(script, /已完成.*题/);
@@ -113,7 +125,7 @@ test('home and wrong pages derive wrong answers only from answer events', () => 
   assert.doesNotMatch(wrong, /getWrongAnswerIds/);
 });
 
-test('keeps JSON question banks in the developer-tools preview package', () => {
+test('keeps imported JSON support available in the developer-tools preview package', () => {
   assert.equal(project.setting.ignoreDevUnusedFiles, false);
   const privateConfigPath = path.join(root, 'project.private.config.json');
   if (fs.existsSync(privateConfigPath)) {
@@ -122,14 +134,12 @@ test('keeps JSON question banks in the developer-tools preview package', () => {
   }
 });
 
-test('provides WeChat-loadable JS modules for every JSON question bank', async () => {
+test('removes every legacy built-in question bank and exposes subject management', () => {
   const names = ['politics', 'common-sense', 'verbal', 'quantitative', 'reasoning', 'data-analysis'];
   for (const name of names) {
-    const json = JSON.parse(fs.readFileSync(path.join(root, `questions/${name}.json`), 'utf8'));
-    const modulePath = path.join(root, `questions/generated/${name}.js`);
-    assert.equal(fs.existsSync(modulePath), true, modulePath);
-    const loaded = await import(`${modulePath}?cache=${Date.now()}`);
-    assert.equal(loaded.default.questionCount, json.questionCount);
-    assert.equal(loaded.default.questions[0].id, json.questions[0].id);
+    assert.equal(fs.existsSync(path.join(root, `questions/${name}.json`)), false);
+    assert.equal(fs.existsSync(path.join(root, `questions/generated/${name}.js`)), false);
   }
+  assert.match(fs.readFileSync(path.join(root, 'pages/bank/index.wxml'), 'utf8'), /管理科目/);
+  assert.match(fs.readFileSync(path.join(root, 'pages/import-bank/index.wxml'), 'utf8'), /所属科目/);
 });
