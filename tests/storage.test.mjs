@@ -5,6 +5,64 @@ import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const { createStorage } = require('../services/storage.js');
 
+test('provides and persists a normalized local user profile', () => {
+  const values = new Map();
+  const adapter = {
+    get: (key) => values.get(key),
+    set: (key, value) => values.set(key, value),
+  };
+  const storage = createStorage(adapter);
+
+  assert.deepEqual(storage.getUserProfile(), { nickname: '备考用户', avatarPath: '' });
+  assert.deepEqual(storage.saveUserProfile({
+    nickname: '  小林  ',
+    avatarPath: '  wxfile://profile-avatar.jpg  ',
+  }), {
+    nickname: '小林',
+    avatarPath: 'wxfile://profile-avatar.jpg',
+  });
+  assert.deepEqual(createStorage(adapter).getUserProfile(), {
+    nickname: '小林',
+    avatarPath: 'wxfile://profile-avatar.jpg',
+  });
+});
+
+test('falls back safely from damaged user profile data', () => {
+  const cases = [
+    null,
+    'invalid',
+    [],
+    {},
+    { nickname: '   ', avatarPath: 42 },
+    { nickname: '123456789012345678901', avatarPath: null },
+  ];
+
+  for (const stored of cases) {
+    const storage = createStorage({
+      get: (key) => (key === 'guokao_user_profile_v1' ? stored : undefined),
+      set: () => undefined,
+    });
+    assert.deepEqual(storage.getUserProfile(), { nickname: '备考用户', avatarPath: '' });
+  }
+});
+
+test('rejects invalid nicknames without overwriting an existing profile', () => {
+  const values = new Map();
+  const storage = createStorage({
+    get: (key) => values.get(key),
+    set: (key, value) => values.set(key, value),
+  });
+  storage.saveUserProfile({ nickname: '有效昵称', avatarPath: 'saved-avatar.jpg' });
+
+  assert.throws(() => storage.saveUserProfile({ nickname: '   ' }), /1 and 20/);
+  assert.throws(() => storage.saveUserProfile({ nickname: '123456789012345678901' }), /1 and 20/);
+  assert.deepEqual(storage.getUserProfile(), { nickname: '有效昵称', avatarPath: 'saved-avatar.jpg' });
+  assert.deepEqual(storage.saveUserProfile({ nickname: '新昵称', avatarPath: 42 }), {
+    nickname: '新昵称',
+    avatarPath: '',
+  });
+});
+
 test('persists wrong answer ids without duplicates', () => {
   const values = new Map();
   const storage = createStorage({

@@ -103,6 +103,7 @@ app.js 初始化 storage 与安全区布局
 | `guokao_practice_settings` | 上次题量、顺序和“只练未做题”设置 |
 | `guokao_daily_goal` | 每日目标，合法范围 1–200 |
 | `guokao_wrong_answers` | 旧版错题 ID；当前错题视图以答题事件推导为准 |
+| `guokao_user_profile_v1` | 本地用户昵称和持久化头像路径；无数据时回退为“备考用户” |
 | `guokao_custom_subjects_v1` | 自定义科目实体；包含稳定 ID、名称和创建/更新时间 |
 
 ## 5. 全部文件说明
@@ -229,10 +230,10 @@ app.js 初始化 storage 与安全区布局
 
 | 文件 | 作用 |
 | --- | --- |
-| `pages/profile/index.js` | 加载累计答题、正确率、收藏、连续学习；提供目标、历史、收藏、统计等菜单入口。 |
+| `pages/profile/index.js` | 加载本地用户资料、累计答题、正确率、收藏和连续学习；处理昵称编辑、头像文件落盘/清理与菜单跳转。 |
 | `pages/profile/index.json` | 个人页自定义导航配置。 |
-| `pages/profile/index.wxml` | 用户展示区、三项可点击指标、功能菜单、复核提示和底栏。当前昵称/目标是静态演示文案。 |
-| `pages/profile/index.wxss` | 头像插画、用户头部、指标卡、菜单和背景装饰样式。 |
+| `pages/profile/index.wxml` | 用户展示区、原生 `chooseAvatar` 头像选择、`nickname` 昵称输入、三项可点击指标、功能菜单、复核提示和底栏。 |
+| `pages/profile/index.wxss` | 默认头像插画、自定义头像、页内资料编辑卡、用户头部、指标卡、菜单和背景装饰样式。 |
 
 #### `pages/goal/` 每日学习目标
 
@@ -295,7 +296,7 @@ app.js 初始化 storage 与安全区布局
 | `services/layout.js` | 防御性读取微信窗口信息并计算状态栏、胶囊、导航栏和内容安全区。导出 `computeLayoutMetrics`、`getSafeWindowInfo`、`resolvePositiveMetric`。 |
 | `services/question-bank.js` | 唯一的题库运行时入口；只加载私人题库，生成科目汇总，校验题目，执行单题库/混合抽题、排除已做题和按 ID 查题。 |
 | `services/practice-session.js` | 纯函数式练习状态机；创建会话、规范化单选/多选答案、按集合判定多选正确性、前后移动、跳题、构造答题卡、汇总结果。 |
-| `services/storage.js` | 封装 `wx.getStorageSync/setStorageSync`（Node 环境退化为内存适配器）；管理事件、收藏迁移、目标、练习汇总和设置。 |
+| `services/storage.js` | 封装 `wx.getStorageSync/setStorageSync`（Node 环境退化为内存适配器）；管理事件、收藏迁移、目标、练习汇总、设置和用户资料，提供 `getUserProfile()` / `saveUserProfile()`。 |
 | `services/subject-storage.js` | 管理自定义科目的新增、改名、唯一性和安全删除；启动时为旧私人题库迁移 `subjectId`。 |
 | `services/user-progress.js` | 从答题事件推导问候/日期、模块进度、最新错题、本周巩固、今日题量、个人统计、连续天数和按题历史。 |
 | `services/user-bank-import.js` | 私人 JSON 导入核心：严格校验单选字符串答案或多选答案数组、文本规范化、SHA-256、题目指纹、重复检测和有效题过滤。 |
@@ -317,10 +318,10 @@ app.js 初始化 storage 与安全区布局
 | 文件 | 覆盖范围 |
 | --- | --- |
 | `tests/layout.test.mjs` | 安全区计算、缺失/畸形指标、矛盾胶囊数据、微信 API 回退、组件布局优先级及入口接线。 |
-| `tests/miniprogram-structure.test.mjs` | 页面注册与四件套、WXML 事件处理器、答题交互、错题数据源、自定义科目入口，以及旧内置题库文件确已删除。 |
+| `tests/miniprogram-structure.test.mjs` | 页面注册与四件套、WXML 事件处理器（含昵称/头像原生事件）、答题交互、错题数据源、自定义科目入口，以及旧内置题库文件确已删除。 |
 | `tests/practice-session.test.mjs` | 会话初始态、单选/多选提交、多选答案顺序无关判定、错误选项组合、前后移动、题卡锁定和结果汇总。 |
 | `tests/question-bank.test.mjs` | 无内置题库、私人题库加载、科目汇总、单题库抽题、按 ID 查题、混合均衡抽题、去重/排除和边界。 |
-| `tests/storage.test.mjs` | 错题去重、练习汇总统计、答题事件规范化、目标校验、损坏事件过滤及收藏时间与旧数据迁移。 |
+| `tests/storage.test.mjs` | 错题去重、练习汇总统计、答题事件规范化、目标校验、用户资料默认值/持久化/异常回退、损坏事件过滤及收藏时间与旧数据迁移。 |
 | `tests/user-progress.test.mjs` | 问候、日期、模块完成度、最新错题、本周巩固、今日数量、连续学习、个人统计、历史聚合及异常/未来事件。 |
 | `tests/user-bank-import.test.mjs` | SHA-256、现有单选题库兼容、多选答案规范化/坏数据拒绝、重复检测及严格字段校验。 |
 | `tests/user-bank-storage.test.mjs` | 私人题库导入、科目必填/修改/导出、单选/多选持久化、全局 ID、加载、回收站和永久删除。 |

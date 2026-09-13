@@ -45,7 +45,7 @@ test('every WXML event handler exists in its page or component script', () => {
   for (const base of roots) {
     const markup = fs.readFileSync(`${base}.wxml`, 'utf8');
     const script = fs.readFileSync(`${base}.js`, 'utf8');
-    const handlers = [...markup.matchAll(/bind(?:tap|change|righttap)="([A-Za-z0-9_]+)"/g)].map((match) => match[1]);
+    const handlers = [...markup.matchAll(/bind(?:tap|change|righttap|chooseavatar|input|blur|confirm|error)="([A-Za-z0-9_]+)"/g)].map((match) => match[1]);
     for (const handler of handlers) {
       assert.match(script, new RegExp(`\\b${handler}\\s*\\(`), `${base}.wxml handler ${handler}`);
     }
@@ -98,6 +98,23 @@ test('profile metrics expose three independent tap targets', () => {
   assert.match(markup, /bindtap="openAccuracy"/);
   assert.match(markup, /bindtap="openFavorites"/);
   assert.doesNotMatch(markup, /class="metrics" bindtap=/);
+});
+
+test('profile supports native nickname and avatar editing backed by local storage', () => {
+  const script = fs.readFileSync(path.join(root, 'pages/profile/index.js'), 'utf8');
+  const markup = fs.readFileSync(path.join(root, 'pages/profile/index.wxml'), 'utf8');
+  const storage = fs.readFileSync(path.join(root, 'services/storage.js'), 'utf8');
+  assert.match(markup, /open-type="chooseAvatar"/);
+  assert.match(markup, /bindchooseavatar="chooseAvatar"/);
+  assert.match(markup, /type="nickname"/);
+  assert.match(markup, /maxlength="20"/);
+  assert.match(script, /USER_DATA_PATH/);
+  assert.match(script, /persistAvatarFile/);
+  assert.match(script, /saveUserProfile/);
+  assert.match(storage, /guokao_user_profile_v1/);
+  assert.match(storage, /getUserProfile/);
+  assert.match(storage, /saveUserProfile/);
+  assert.doesNotMatch(markup, />备考小林</);
 });
 
 test('question headers use icon UI and keep the card action out of the top row', () => {

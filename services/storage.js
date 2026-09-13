@@ -6,7 +6,31 @@ const KEYS = {
   attempts: 'guokao_answer_events',
   dailyGoal: 'guokao_daily_goal',
   favoriteRecords: 'guokao_favorite_records',
+  userProfile: 'guokao_user_profile_v1',
 };
+
+const DEFAULT_USER_PROFILE = Object.freeze({
+  nickname: '备考用户',
+  avatarPath: '',
+});
+
+function getTextLength(value) {
+  return Array.from(value).length;
+}
+
+function normalizeUserProfile(profile) {
+  if (!profile || typeof profile !== 'object' || Array.isArray(profile)) {
+    return { ...DEFAULT_USER_PROFILE };
+  }
+  const nickname = typeof profile.nickname === 'string' ? profile.nickname.trim() : '';
+  const avatarPath = typeof profile.avatarPath === 'string' ? profile.avatarPath.trim() : '';
+  return {
+    nickname: nickname && getTextLength(nickname) <= 20
+      ? nickname
+      : DEFAULT_USER_PROFILE.nickname,
+    avatarPath,
+  };
+}
 
 function defaultAdapter() {
   if (typeof wx !== 'undefined') {
@@ -90,6 +114,23 @@ function createStorage(adapter = defaultAdapter()) {
       adapter.set(KEYS.dailyGoal, value);
       return value;
     },
+    getUserProfile: () => normalizeUserProfile(adapter.get(KEYS.userProfile)),
+    saveUserProfile(profile) {
+      const nickname = profile && typeof profile.nickname === 'string'
+        ? profile.nickname.trim()
+        : '';
+      if (!nickname || getTextLength(nickname) > 20) {
+        throw new RangeError('nickname must contain between 1 and 20 characters');
+      }
+      const normalized = {
+        nickname,
+        avatarPath: profile && typeof profile.avatarPath === 'string'
+          ? profile.avatarPath.trim()
+          : '',
+      };
+      adapter.set(KEYS.userProfile, normalized);
+      return normalized;
+    },
     getHistory: () => readList(KEYS.history),
     savePractice(record) {
       adapter.set(KEYS.history, [...readList(KEYS.history), { ...record, completedAt: Date.now() }]);
@@ -124,4 +165,4 @@ function createStorage(adapter = defaultAdapter()) {
   };
 }
 
-module.exports = { createStorage, KEYS };
+module.exports = { createStorage, KEYS, DEFAULT_USER_PROFILE, normalizeUserProfile };
