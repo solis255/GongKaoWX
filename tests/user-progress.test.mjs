@@ -11,6 +11,7 @@ const {
   getProfileStats,
   getHistoryRows,
   getTodayCount,
+  getTodaySubjectDistribution,
 } = require('../services/user-progress.js');
 
 const at = (day, hour = 0) => new Date(2026, 5, day, hour).getTime();
@@ -55,6 +56,55 @@ test('filters wrong and reinforced questions by module', () => {
 
 test('counts answer events from today in local time', () => {
   assert.equal(getTodayCount(events, new Date(2026, 5, 20, 23, 30)), 4);
+});
+
+test('aggregates today answer events by subject across multiple banks', () => {
+  const now = new Date(2026, 5, 20, 12);
+  const distributionEvents = [
+    ...[8, 9].map((hour, index) => ({
+      questionId: `a-${index}`, moduleKey: 'bank-A', correct: true, answeredAt: at(20, hour),
+    })),
+    { questionId: 'b-1', moduleKey: 'bank-B', correct: false, answeredAt: at(20, 10) },
+    ...[11, 12, 13].map((hour, index) => ({
+      questionId: `c-${index}`, moduleKey: 'bank-C', correct: true, answeredAt: at(20, hour),
+    })),
+    { questionId: 'yesterday', moduleKey: 'bank-A', correct: true, answeredAt: at(19, 23) },
+  ];
+  const banks = [
+    { key: 'bank-A', subjectName: '判断推理' },
+    { key: 'bank-B', subjectName: '言语理解' },
+    { key: 'bank-C', subjectName: '判断推理', status: 'trash' },
+  ];
+
+  assert.deepEqual(getTodaySubjectDistribution(distributionEvents, banks, now), [
+    { name: '判断推理', value: 5, percent: 83 },
+    { name: '言语理解', value: 1, percent: 17 },
+  ]);
+});
+
+test('groups unknown today modules under other without losing event counts', () => {
+  const now = new Date(2026, 5, 20, 12);
+  const distribution = getTodaySubjectDistribution([
+    { questionId: 'known', moduleKey: 'known-bank', correct: true, answeredAt: at(20, 8) },
+    { questionId: 'unknown-1', moduleKey: 'removed-bank', correct: false, answeredAt: at(20, 9) },
+    { questionId: 'unknown-2', moduleKey: 'another-bank', correct: true, answeredAt: at(20, 10) },
+  ], [{ key: 'known-bank', subjectName: '资料分析' }], now);
+
+  assert.deepEqual(distribution, [
+    { name: '其他', value: 2, percent: 67 },
+    { name: '资料分析', value: 1, percent: 33 },
+  ]);
+  assert.equal(distribution.reduce((sum, item) => sum + item.value, 0), 3);
+});
+
+test('returns an empty subject distribution when today has no valid events', () => {
+  assert.deepEqual(getTodaySubjectDistribution(events, [], new Date(2026, 5, 21, 12)), []);
+  assert.deepEqual(getTodaySubjectDistribution(events, [], new Date('invalid')), []);
+  assert.deepEqual(getTodaySubjectDistribution([
+    { questionId: 'only', moduleKey: 'only-bank', correct: true, answeredAt: at(20, 8) },
+  ], [{ key: 'only-bank', subjectName: '数量关系' }], new Date(2026, 5, 20, 12)), [
+    { name: '数量关系', value: 1, percent: 100 },
+  ]);
 });
 
 test('builds profile totals, accuracy, favorites, and consecutive study days', () => {

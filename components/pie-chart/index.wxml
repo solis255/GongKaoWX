@@ -1,0 +1,11 @@
+<view class="pie-chart">
+  <canvas id="pieCanvas" class="pie-canvas" type="2d"></canvas>
+  <view class="pie-legend">
+    <view class="legend-row" wx:for="{{chartItems}}" wx:key="name">
+      <view class="legend-dot" style="background: {{item.color}};"></view>
+      <view class="legend-name">{{item.name}}</view>
+      <view class="legend-value">{{item.value}}题</view>
+      <view class="legend-percent">{{item.percent}}%</view>
+    </view>
+  </view>
+</view>

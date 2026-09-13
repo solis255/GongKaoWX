@@ -1,4 +1,5 @@
-const { getProfileStats } = require('../../services/user-progress');
+const { getProfileStats, getTodaySubjectDistribution } = require('../../services/user-progress');
+const { listUserBanks } = require('../../services/question-bank');
 
 const AVATAR_FILE_PREFIX = 'guokao-profile-avatar-';
 
@@ -56,6 +57,8 @@ Page({
     draftAvatarPath: '',
     avatarChanged: false,
     profileError: '',
+    todayDistribution: [],
+    todayDistributionTotal: 0,
     menu: [
       { label: '学习目标', url: '/pages/goal/index' },
       { label: '练习记录', url: '/pages/history/index' },
@@ -67,8 +70,20 @@ Page({
   onShow() {
     const app = getApp();
     const storage = app.globalData.storage;
-    const stats = getProfileStats(storage.getAnswerEvents(), storage.getFavoriteIds(), new Date());
-    const nextData = { layout: app.globalData.layout, ...stats };
+    const answerEvents = storage.getAnswerEvents();
+    const now = new Date();
+    const stats = getProfileStats(answerEvents, storage.getFavoriteIds(), now);
+    const todayDistribution = getTodaySubjectDistribution(
+      answerEvents,
+      listUserBanks({ includeTrash: true }),
+      now,
+    );
+    const nextData = {
+      layout: app.globalData.layout,
+      ...stats,
+      todayDistribution,
+      todayDistributionTotal: todayDistribution.reduce((sum, item) => sum + item.value, 0),
+    };
     if (!this.data.editing) Object.assign(nextData, storage.getUserProfile());
     this.setData(nextData);
   },

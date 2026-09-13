@@ -38,11 +38,18 @@ test('every registered page has js, json, wxml and wxss files', () => {
 });
 
 test('every WXML event handler exists in its page or component script', () => {
+  const localComponents = app.pages.flatMap((page) => {
+    const config = JSON.parse(fs.readFileSync(path.join(root, `${page}.json`), 'utf8'));
+    return Object.values(config.usingComponents || {}).map((component) => (
+      path.join(root, component.slice(1))
+    ));
+  });
   const roots = [
     ...app.pages.map((page) => path.join(root, page)),
     ...Object.values(app.usingComponents).map((component) => path.join(root, component.slice(1))),
+    ...localComponents,
   ];
-  for (const base of roots) {
+  for (const base of new Set(roots)) {
     const markup = fs.readFileSync(`${base}.wxml`, 'utf8');
     const script = fs.readFileSync(`${base}.js`, 'utf8');
     const handlers = [...markup.matchAll(/bind(?:tap|change|righttap|chooseavatar|input|blur|confirm|error)="([A-Za-z0-9_]+)"/g)].map((match) => match[1]);
@@ -115,6 +122,28 @@ test('profile supports native nickname and avatar editing backed by local storag
   assert.match(storage, /getUserProfile/);
   assert.match(storage, /saveUserProfile/);
   assert.doesNotMatch(markup, />备考小林</);
+});
+
+test('profile renders today subject distribution with a local Canvas 2D component', () => {
+  const script = fs.readFileSync(path.join(root, 'pages/profile/index.js'), 'utf8');
+  const markup = fs.readFileSync(path.join(root, 'pages/profile/index.wxml'), 'utf8');
+  const config = JSON.parse(fs.readFileSync(path.join(root, 'pages/profile/index.json'), 'utf8'));
+  assert.equal(config.usingComponents?.['pie-chart'], '/components/pie-chart/index');
+  assert.match(script, /listUserBanks\(\{ includeTrash: true \}\)/);
+  assert.match(script, /getTodaySubjectDistribution/);
+  assert.match(markup, /今日刷题分布/);
+  assert.match(markup, /今天还没有刷题记录/);
+  assert.match(markup, /<pie-chart items="\{\{todayDistribution\}\}">/);
+
+  const componentBase = path.join(root, 'components/pie-chart/index');
+  for (const extension of ['js', 'json', 'wxml', 'wxss']) {
+    assert.equal(fs.existsSync(`${componentBase}.${extension}`), true, `pie-chart index.${extension}`);
+  }
+  const componentScript = fs.readFileSync(`${componentBase}.js`, 'utf8');
+  const componentMarkup = fs.readFileSync(`${componentBase}.wxml`, 'utf8');
+  assert.match(componentMarkup, /canvas[^>]+type="2d"/);
+  assert.match(componentScript, /pixelRatio/);
+  assert.match(componentScript, /context\.scale\(ratio, ratio\)/);
 });
 
 test('question headers use icon UI and keep the card action out of the top row', () => {

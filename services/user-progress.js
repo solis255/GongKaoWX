@@ -110,6 +110,35 @@ function getTodayCount(events, now = new Date()) {
   return validEvents(events).filter((event) => dayKey(event.answeredAt) === today).length;
 }
 
+function getTodaySubjectDistribution(events, banks, now = new Date()) {
+  if (!isValidDate(now)) return [];
+  const subjectByModule = new Map();
+  for (const bank of asArray(banks)) {
+    if (!bank || typeof bank.key !== 'string' || !bank.key.trim()) continue;
+    const subjectName = typeof bank.subjectName === 'string' ? bank.subjectName.trim() : '';
+    subjectByModule.set(bank.key, subjectName || '其他');
+  }
+
+  const today = dayKey(now.getTime());
+  const counts = new Map();
+  for (const event of validEvents(events)) {
+    if (dayKey(event.answeredAt) !== today) continue;
+    const subjectName = subjectByModule.get(event.moduleKey) || '其他';
+    counts.set(subjectName, (counts.get(subjectName) || 0) + 1);
+  }
+
+  const total = [...counts.values()].reduce((sum, value) => sum + value, 0);
+  return [...counts.entries()]
+    .map(([name, value], index) => ({
+      name,
+      value,
+      percent: Math.round((value / total) * 100),
+      order: index,
+    }))
+    .sort((left, right) => right.value - left.value || left.order - right.order)
+    .map(({ name, value, percent }) => ({ name, value, percent }));
+}
+
 function getProfileStats(events, favoriteIds, now = new Date()) {
   const source = validEvents(events);
   const studiedDays = new Set(source.map((event) => dayKey(event.answeredAt)));
@@ -162,4 +191,5 @@ module.exports = {
   getProfileStats,
   getHistoryRows,
   getTodayCount,
+  getTodaySubjectDistribution,
 };

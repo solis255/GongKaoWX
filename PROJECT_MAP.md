@@ -2,7 +2,7 @@
 
 > 用途：在后续修改中先查本文件，快速定位页面、业务逻辑、题库和测试，避免重复扫描整个仓库。
 >
-> 最近完整扫描：2026-08-21。扫描范围为项目根目录下除 `.git/` 内部数据之外的全部 117 个项目文件；新增、删除或重命名文件后应同步更新本导航。
+> 最近完整扫描：2026-09-14。扫描范围为项目根目录下除 `.git/` 内部数据之外的全部 120 个受版本管理的项目文件；新增、删除或重命名文件后应同步更新本导航。
 
 ## 1. 项目概览
 
@@ -10,7 +10,7 @@
 
 - 运行入口：`app.js`、`app.json`、`app.wxss`
 - 页面：`pages/` 下 16 个页面，每页由 `index.js`、`index.json`、`index.wxml`、`index.wxss` 四件套组成
-- 公共组件：`components/` 下的顶部栏、底部导航、进度条
+- 公共组件：`components/` 下的顶部栏、底部导航、进度条和饼图
 - 核心业务：`services/` 下的自定义科目、私人题库、JSON 导入、会话、存储、进度统计和安全区布局
 - JSON 参考：`questions/user-bank-import.schema.json`、`questions/user-bank-import.example.json`
 - 自动化测试：`tests/`
@@ -140,6 +140,10 @@ app.js 初始化 storage 与安全区布局
 | `components/progress-bar/index.json` | 声明进度条为微信自定义组件。 |
 | `components/progress-bar/index.wxml` | 轨道与按百分比设置宽度的填充条。 |
 | `components/progress-bar/index.wxss` | 进度条轨道及绿色/蓝色渐变填充样式。 |
+| `components/pie-chart/index.js` | 原生 Canvas 2D 饼图；按设备 DPR 缩放画布，为科目循环分配 8 种柔和配色。 |
+| `components/pie-chart/index.json` | 声明该目录是微信自定义组件。 |
+| `components/pie-chart/index.wxml` | 饼图 Canvas 以及包含科目名、题数和百分比的图例。 |
+| `components/pie-chart/index.wxss` | 饼图尺寸、图例行、颜色标记和数值对齐样式。 |
 
 ### 5.3 页面 `pages/`
 
@@ -230,9 +234,9 @@ app.js 初始化 storage 与安全区布局
 
 | 文件 | 作用 |
 | --- | --- |
-| `pages/profile/index.js` | 加载本地用户资料、累计答题、正确率、收藏和连续学习；处理昵称编辑、头像文件落盘/清理与菜单跳转。 |
-| `pages/profile/index.json` | 个人页自定义导航配置。 |
-| `pages/profile/index.wxml` | 用户展示区、原生 `chooseAvatar` 头像选择、`nickname` 昵称输入、三项可点击指标、功能菜单、复核提示和底栏。 |
+| `pages/profile/index.js` | 加载本地用户资料、个人统计与今日科目分布；用回收站内题库保持历史事件的科目映射，并处理资料编辑和菜单跳转。 |
+| `pages/profile/index.json` | 个人页自定义导航配置，局部注册 `pie-chart` 组件。 |
+| `pages/profile/index.wxml` | 用户资料区、三项指标、今日刷题饼图/空状态、功能菜单、复核提示和底栏。 |
 | `pages/profile/index.wxss` | 默认头像插画、自定义头像、页内资料编辑卡、用户头部、指标卡、菜单和背景装饰样式。 |
 
 #### `pages/goal/` 每日学习目标
@@ -298,7 +302,7 @@ app.js 初始化 storage 与安全区布局
 | `services/practice-session.js` | 纯函数式练习状态机；创建会话、规范化单选/多选答案、按集合判定多选正确性、前后移动、跳题、构造答题卡、汇总结果。 |
 | `services/storage.js` | 封装 `wx.getStorageSync/setStorageSync`（Node 环境退化为内存适配器）；管理事件、收藏迁移、目标、练习汇总、设置和用户资料，提供 `getUserProfile()` / `saveUserProfile()`。 |
 | `services/subject-storage.js` | 管理自定义科目的新增、改名、唯一性和安全删除；启动时为旧私人题库迁移 `subjectId`。 |
-| `services/user-progress.js` | 从答题事件推导问候/日期、模块进度、最新错题、本周巩固、今日题量、个人统计、连续天数和按题历史。 |
+| `services/user-progress.js` | 从答题事件推导问候/日期、模块进度、最新错题、本周巩固、今日题量、个人统计、连续天数、按题历史和今日科目分布；导出 `getTodaySubjectDistribution()`。 |
 | `services/user-bank-import.js` | 私人 JSON 导入核心：严格校验单选字符串答案或多选答案数组、文本规范化、SHA-256、题目指纹、重复检测和有效题过滤。 |
 | `services/user-bank-storage.js` | 私人题库本地文件仓库：200题分块、暂存后提交、全局题目 ID、科目归属、加载/导出、回收站、恢复和永久删除；提供内存适配器用于测试。 |
 
@@ -318,11 +322,11 @@ app.js 初始化 storage 与安全区布局
 | 文件 | 覆盖范围 |
 | --- | --- |
 | `tests/layout.test.mjs` | 安全区计算、缺失/畸形指标、矛盾胶囊数据、微信 API 回退、组件布局优先级及入口接线。 |
-| `tests/miniprogram-structure.test.mjs` | 页面注册与四件套、WXML 事件处理器（含昵称/头像原生事件）、答题交互、错题数据源、自定义科目入口，以及旧内置题库文件确已删除。 |
+| `tests/miniprogram-structure.test.mjs` | 页面注册与四件套、全局/局部组件事件、个人资料与饼图接线、答题交互、错题数据源、自定义科目入口，以及旧内置题库文件确已删除。 |
 | `tests/practice-session.test.mjs` | 会话初始态、单选/多选提交、多选答案顺序无关判定、错误选项组合、前后移动、题卡锁定和结果汇总。 |
 | `tests/question-bank.test.mjs` | 无内置题库、私人题库加载、科目汇总、单题库抽题、按 ID 查题、混合均衡抽题、去重/排除和边界。 |
 | `tests/storage.test.mjs` | 错题去重、练习汇总统计、答题事件规范化、目标校验、用户资料默认值/持久化/异常回退、损坏事件过滤及收藏时间与旧数据迁移。 |
-| `tests/user-progress.test.mjs` | 问候、日期、模块完成度、最新错题、本周巩固、今日数量、连续学习、个人统计、历史聚合及异常/未来事件。 |
+| `tests/user-progress.test.mjs` | 问候、日期、模块完成度、最新错题、本周巩固、今日数量/科目分布、同科多题库合并、未知题库回退、连续学习、个人统计、历史聚合及异常/未来事件。 |
 | `tests/user-bank-import.test.mjs` | SHA-256、现有单选题库兼容、多选答案规范化/坏数据拒绝、重复检测及严格字段校验。 |
 | `tests/user-bank-storage.test.mjs` | 私人题库导入、科目必填/修改/导出、单选/多选持久化、全局 ID、加载、回收站和永久删除。 |
 | `tests/subject-storage.test.mjs` | 科目名称规范化、唯一性、新增/改名/安全删除、稳定 ID，以及旧私人题库科目迁移。 |
@@ -380,6 +384,7 @@ app.js 初始化 storage 与安全区布局
 - 扫描时工作树中 `project.config.json` 已有未提交修改；它不是本次文档生成所改动的文件，后续修改时应保留用户现有变更。
 - `project.private.config.json` 存在于本机且未被 Git 跟踪，符合 `.gitignore` 约定。
 - 2026-08-21 执行 9 个测试文件、68 项测试全部通过；Node 16 下需逐个直接执行 `.test.mjs` 才能展开内部用例。
+- 2026-09-14 执行 9 个测试文件、76 项测试全部通过；今日科目分布纯函数、未知题库回退、局部饼图组件与 DPR 接线均已覆盖。
 - 六套旧内置 JSON 题库、六个 generated 模块、固定题库 Schema、同步/校验脚本及对应测试已删除；运行时只读取用户导入的私人题库。
 
 ## 9. 如何维护本文件
