@@ -9,5 +9,9 @@
     </view>
   </view>
   <button wx:if="{{mode==='random'&&modules.length}}" class="primary-button random-start" bindtap="startRandom">开始综合随机练习</button>
-  <view class="bank-tools"><view bindtap="manageSubjects">管理科目</view><view bindtap="importBank">＋ 导入题库</view><view bindtap="openTrash">回收站{{trashCount?'（'+trashCount+'）':''}}</view></view>
+  <view class="bank-tools">
+    <view class="bank-tool" hover-class="bank-tool--pressed" bindtap="manageSubjects">管理科目</view>
+    <view class="bank-tool bank-tool--primary" hover-class="bank-tool--pressed" bindtap="importBank">＋ 导入题库</view>
+    <view class="bank-tool" hover-class="bank-tool--pressed" bindtap="openTrash">回收站{{trashCount?'（'+trashCount+'）':''}}</view>
+  </view>
 </view><bottom-nav active="bank"></bottom-nav>

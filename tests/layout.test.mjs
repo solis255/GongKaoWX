@@ -118,3 +118,18 @@ test('app and app-header consume shared safe layout resolvers', () => {
   assert.equal((headerScript.match(/observer\([^)]*\)\s*{\s*this\.resolveLayout\(\)/g) || []).length, 2);
   assert.match(headerScript, /resolvePositiveMetric/);
 });
+
+test('bank tools stay above the fixed navigation on narrow safe-area screens', () => {
+  const markup = fs.readFileSync(path.join(root, 'pages/bank/index.wxml'), 'utf8');
+  const style = fs.readFileSync(path.join(root, 'pages/bank/index.wxss'), 'utf8');
+  const toolRows = markup.match(/class="bank-tool(?: [^"]*)?"/g) || [];
+
+  assert.equal(toolRows.length, 3);
+  assert.match(style, /\.bank\s*\{[^}]*padding-bottom:\s*calc\(220rpx \+ env\(safe-area-inset-bottom\)\)/);
+  assert.match(style, /grid-template-columns:\s*repeat\(3,minmax\(0,1fr\)\)/);
+  assert.match(style, /\.bank-tool\s*\{[^}]*height:\s*88rpx/);
+  assert.match(style, /\.bank-tool\s*\{[^}]*white-space:\s*nowrap/);
+  assert.match(markup, /管理科目/);
+  assert.match(markup, /＋ 导入题库/);
+  assert.match(markup, /回收站/);
+});
