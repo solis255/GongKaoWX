@@ -184,7 +184,7 @@ app.js 初始化 storage 与安全区布局
 | --- | --- |
 | `pages/question/index.js` | 加载当前题和共享材料；单选题替换选择，多选题切换勾选；处理计时、收藏、上一题、提交答题事件并进入解析。 |
 | `pages/question/index.json` | 答题页自定义导航配置。 |
-| `pages/question/index.wxml` | 题号/进度、难度、材料、题干、A–D 选项、多选提示与勾选状态、收藏、题卡和提交按钮。 |
+| `pages/question/index.wxml` | 题号/进度、难度、材料、题干、按实际数量动态渲染的 2～4 个选项、多选提示与勾选状态、收藏、题卡和提交按钮。 |
 | `pages/question/index.wxss` | 固定头部/底部操作栏、滚动答题区、材料和选项状态样式。 |
 
 #### `pages/analysis/` 答案解析
@@ -309,12 +309,12 @@ app.js 初始化 storage 与安全区布局
 | 文件 | 作用与主要 API |
 | --- | --- |
 | `services/layout.js` | 防御性读取微信窗口信息并计算状态栏、胶囊、导航栏和内容安全区。导出 `computeLayoutMetrics`、`getSafeWindowInfo`、`resolvePositiveMetric`。 |
-| `services/question-bank.js` | 唯一的题库运行时入口；只加载私人题库，生成科目汇总，校验题目，执行单题库/混合抽题、排除已做题和按 ID 查题。 |
+| `services/question-bank.js` | 唯一的题库运行时入口；只加载私人题库，校验 2～4 个连续选项及实际答案引用，生成科目汇总，执行单题库/混合抽题、排除已做题和按 ID 查题。 |
 | `services/practice-session.js` | 纯函数式练习状态机；创建会话、规范化单选/多选答案、按集合判定多选正确性、前后移动、跳题、构造答题卡、汇总结果。 |
 | `services/storage.js` | 封装微信同步缓存；管理答题事件、收藏、目标、练习、用户资料和考试配置，提供 `getExamConfig()` / `saveExamConfig()` / `clearExamConfig()` 及严格日期校验。 |
 | `services/subject-storage.js` | 管理自定义科目的新增、改名、唯一性和安全删除；启动时为旧私人题库迁移 `subjectId`。 |
 | `services/user-progress.js` | 从答题事件推导各类学习统计；除今日分布和考试倒计时外，导出 `getDailyActivity()`、`getMonthActivity()`、`shiftCalendarMonth()` 供打卡日历聚合每日题量、生成平闰年月历及跨年切换。 |
-| `services/user-bank-import.js` | 私人 JSON 导入核心：严格校验单选字符串答案或多选答案数组、文本规范化、SHA-256、题目指纹、重复检测和有效题过滤。 |
+| `services/user-bank-import.js` | 私人 JSON 导入核心：严格校验从 A 开始连续排列的 2～4 个选项、答案只引用实际选项、单选字符串或多选数组、文本规范化、SHA-256、题目指纹、重复检测和有效题过滤。 |
 | `services/user-bank-storage.js` | 私人题库本地文件仓库：200题分块、暂存后提交、全局题目 ID、科目归属、加载/导出、回收站、恢复和永久删除；提供内存适配器用于测试。 |
 
 职责边界：页面负责微信生命周期、渲染数据和跳转；可测试的抽题、会话和统计规则应放在 `services/`，不要复制到多个页面。
@@ -323,8 +323,8 @@ app.js 初始化 storage 与安全区布局
 
 | 文件 | 作用 |
 | --- | --- |
-| `questions/user-bank-import.schema.json` | 私人题库导入 V1 Schema；支持可选科目建议、单选字符串答案、多选答案数组，并兼容省略 `type` 的单选 JSON。 |
-| `questions/user-bank-import.example.json` | 含科目建议、单选题和共享材料多选题的可导入示例，用于大模型输出参考和真机测试。 |
+| `questions/user-bank-import.schema.json` | 私人题库导入 V1 Schema；选项必须为 A–B、A–C 或 A–D，支持可选科目建议、单选字符串答案、多选答案数组，并兼容省略 `type` 的单选 JSON。 |
+| `questions/user-bank-import.example.json` | 含两选项单选题、三选项共享材料多选题和科目建议的可导入示例，用于大模型输出参考和真机测试。 |
 
 题库字段重点：`id`、`type`、`category`、`subtype`、`difficulty`、`stem`、`materialId`、`options`、`answer`、`explanation`、`knowledgePoints`、`sourceRefs`、`status`。
 
@@ -333,13 +333,13 @@ app.js 初始化 storage 与安全区布局
 | 文件 | 覆盖范围 |
 | --- | --- |
 | `tests/layout.test.mjs` | 安全区计算、缺失/畸形指标、矛盾胶囊数据、微信 API 回退、组件布局优先级，以及题库底部工具栏的安全区/窄屏布局。 |
-| `tests/miniprogram-structure.test.mjs` | 页面/组件事件、个人资料、饼图、考试日期选择、首页倒计时与打卡日历接线，以及答题交互、错题数据源和题库结构。 |
-| `tests/practice-session.test.mjs` | 会话初始态、单选/多选提交、多选答案顺序无关判定、错误选项组合、前后移动、题卡锁定和结果汇总。 |
-| `tests/question-bank.test.mjs` | 无内置题库、私人题库加载、科目汇总、单题库抽题、按 ID 查题、混合均衡抽题、去重/排除和边界。 |
+| `tests/miniprogram-structure.test.mjs` | 页面/组件事件、个人资料、饼图、考试日期选择、首页倒计时与打卡日历接线，以及动态选项渲染、答题交互、错题数据源和题库结构。 |
+| `tests/practice-session.test.mjs` | 会话初始态、2～4 选项单选/多选提交、多选答案顺序无关判定、错误选项组合、前后移动、题卡锁定和结果汇总。 |
+| `tests/question-bank.test.mjs` | 无内置题库、2～4 个连续选项及实际答案引用、私人题库加载、科目汇总、单题库抽题、按 ID 查题、混合均衡抽题、去重/排除和边界。 |
 | `tests/storage.test.mjs` | 现有缓存行为、用户资料，以及考试配置默认值、持久化、严格日期/名称校验、坏数据回退和清除。 |
 | `tests/user-progress.test.mjs` | 现有学习统计、今日科目分布、考试倒计时，以及打卡日历的同日聚合、未来过滤、月首偏移、平闰年和跨年切换规则。 |
-| `tests/user-bank-import.test.mjs` | SHA-256、现有单选题库兼容、多选答案规范化/坏数据拒绝、重复检测及严格字段校验。 |
-| `tests/user-bank-storage.test.mjs` | 私人题库导入、科目必填/修改/导出、单选/多选持久化、全局 ID、加载、回收站和永久删除。 |
+| `tests/user-bank-import.test.mjs` | SHA-256、2～4 个连续选项、答案实际存在性、单选/多选兼容、指纹差异、坏数据拒绝、重复检测及严格字段校验。 |
+| `tests/user-bank-storage.test.mjs` | 私人题库导入、2/3 选项数量的保存/加载/导出往返、科目必填/修改、单选/多选持久化、全局 ID、回收站和永久删除。 |
 | `tests/subject-storage.test.mjs` | 科目名称规范化、唯一性、新增/改名/安全删除、稳定 ID，以及旧私人题库科目迁移。 |
 
 ### 5.7 设计与文档
@@ -397,6 +397,7 @@ app.js 初始化 storage 与安全区布局
 - `project.private.config.json` 存在于本机且未被 Git 跟踪，符合 `.gitignore` 约定。
 - 2026-08-21 执行 9 个测试文件、68 项测试全部通过；Node 16 下需逐个直接执行 `.test.mjs` 才能展开内部用例。
 - 2026-09-14 执行 9 个测试文件、87 项测试全部通过；五项功能的核心数据、页面接线、日期边界和布局规则均已覆盖。
+- 2026-09-16 执行 9 个测试文件、104 项测试全部通过；2～4 个连续选项的 Schema、导入、运行时加载、动态渲染、判题、指纹和存储导出链路均已覆盖。
 - 六套旧内置 JSON 题库、六个 generated 模块、固定题库 Schema、同步/校验脚本及对应测试已删除；运行时只读取用户导入的私人题库。
 
 ## 9. 如何维护本文件

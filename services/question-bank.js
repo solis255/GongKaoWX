@@ -1,5 +1,6 @@
 let userBankStorage = null;
 let subjectStorage = null;
+const OPTION_KEYS = ['A', 'B', 'C', 'D'];
 
 function configureQuestionBankStorage(bankStorage, customSubjectStorage) {
   userBankStorage = bankStorage || null;
@@ -7,21 +8,27 @@ function configureQuestionBankStorage(bankStorage, customSubjectStorage) {
 }
 
 function isValidQuestion(question) {
-  if (!Array.isArray(question?.options) || question.options.length !== 4) return false;
-  const keys = question.options.map((option) => option?.key).join(',');
+  if (
+    !Array.isArray(question?.options)
+    || question.options.length < 2
+    || question.options.length > OPTION_KEYS.length
+  ) return false;
+  const keys = question.options.map((option) => option?.key);
+  const expectedKeys = OPTION_KEYS.slice(0, keys.length);
+  if (keys.some((key, index) => key !== expectedKeys[index])) return false;
+  const availableKeys = new Set(keys);
   const type = question?.type || 'single-choice';
   const answerIsValid = type === 'multiple-choice'
     ? Array.isArray(question.answer)
       && question.answer.length >= 2
       && new Set(question.answer).size === question.answer.length
-      && question.answer.every((answer) => ['A', 'B', 'C', 'D'].includes(answer))
+      && question.answer.every((answer) => availableKeys.has(answer))
     : type === 'single-choice'
       && typeof question.answer === 'string'
-      && ['A', 'B', 'C', 'D'].includes(question.answer);
+      && availableKeys.has(question.answer);
   return Boolean(
     question?.id
       && question?.stem
-      && keys === 'A,B,C,D'
       && answerIsValid,
   );
 }

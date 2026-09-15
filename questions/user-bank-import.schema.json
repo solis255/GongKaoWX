@@ -65,7 +65,7 @@
         "materialId": { "type": ["string", "null"], "minLength": 1 },
         "options": {
           "type": "array",
-          "minItems": 4,
+          "minItems": 2,
           "maxItems": 4,
           "prefixItems": [
             { "$ref": "#/$defs/option", "properties": { "key": { "const": "A" } } },

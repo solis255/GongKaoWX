@@ -23,13 +23,11 @@
       "stem": "以下哪一个选项是本题的正确答案？",
       "materialId": null,
       "options": [
-        { "key": "A", "text": "正确选项" },
-        { "key": "B", "text": "干扰选项一" },
-        { "key": "C", "text": "干扰选项二" },
-        { "key": "D", "text": "干扰选项三" }
+        { "key": "A", "text": "正确" },
+        { "key": "B", "text": "错误" }
       ],
-      "answer": "A",
-      "explanation": "这是一个用于验证导入流程的普通单选题。",
+      "answer": "B",
+      "explanation": "这是一个用于验证两选项导入流程的普通单选题。",
       "knowledgePoints": ["导入测试"],
       "sourceRefs": [],
       "status": "draft"
@@ -45,10 +43,9 @@
       "options": [
         { "key": "A", "text": "减少公共服务" },
         { "key": "B", "text": "数字化方式" },
-        { "key": "C", "text": "停止设施建设" },
-        { "key": "D", "text": "完善公共服务设施" }
+        { "key": "C", "text": "完善公共服务设施" }
       ],
-      "answer": ["B", "D"],
+      "answer": ["B", "C"],
       "explanation": "材料提到完善公共服务设施，并通过数字化方式提高办事效率。",
       "knowledgePoints": [],
       "sourceRefs": [],

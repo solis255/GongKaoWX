@@ -9,6 +9,11 @@ const require = createRequire(import.meta.url);
 const { prepareUserBankImport, sha256 } = require('../services/user-bank-import.js');
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
+function makeOptions(keys) {
+  const textByKey = { A: '选项一', B: '选项二', C: '选项三', D: '选项四', E: '选项五' };
+  return keys.map((key) => ({ key, text: textByKey[key] }));
+}
+
 function makeQuestion(id, stem = `题干 ${id}`) {
   return {
     id,
@@ -17,12 +22,7 @@ function makeQuestion(id, stem = `题干 ${id}`) {
     difficulty: 'unknown',
     stem,
     materialId: null,
-    options: [
-      { key: 'A', text: '选项一' },
-      { key: 'B', text: '选项二' },
-      { key: 'C', text: '选项三' },
-      { key: 'D', text: '选项四' },
-    ],
+    options: makeOptions(['A', 'B', 'C', 'D']),
     answer: 'A',
     explanation: '',
     knowledgePoints: [],
@@ -55,7 +55,160 @@ test('accepts the bundled private question bank example', () => {
     total: 2, valid: 2, invalid: 0, duplicate: 0, crossBankDuplicate: 0,
   });
   assert.equal(prepared.bank.subject, '示例科目');
+  assert.deepEqual(prepared.bank.questions.map(({ options }) => options.length), [2, 3]);
   assert.equal(prepared.bank.questions[0].fingerprint.length, 64);
+});
+
+test('schema declares two to four ordered A-D options', () => {
+  const schema = JSON.parse(fs.readFileSync(
+    path.join(root, 'questions/user-bank-import.schema.json'),
+    'utf8',
+  ));
+  const options = schema.$defs.question.properties.options;
+  assert.equal(options.minItems, 2);
+  assert.equal(options.maxItems, 4);
+  assert.deepEqual(
+    options.prefixItems.map((item) => item.properties.key.const),
+    ['A', 'B', 'C', 'D'],
+  );
+  assert.equal(options.items, false);
+});
+
+test('imports a two-option single-choice question', () => {
+  const question = { ...makeQuestion('two-single'), options: makeOptions(['A', 'B']), answer: 'B' };
+  const prepared = prepareUserBankImport(makeBank([question]));
+  assert.equal(prepared.canImport, true);
+  assert.deepEqual(prepared.bank.questions[0].options.map(({ key }) => key), ['A', 'B']);
+  assert.equal(prepared.bank.questions[0].answer, 'B');
+});
+
+test('imports a three-option single-choice question', () => {
+  const question = {
+    ...makeQuestion('three-single', '相同题干'),
+    options: makeOptions(['A', 'B', 'C']),
+    answer: 'C',
+  };
+  const prepared = prepareUserBankImport(makeBank([question]));
+  const twoOptionVersion = prepareUserBankImport(makeBank([{
+    ...makeQuestion('two-version', '相同题干'),
+    options: makeOptions(['A', 'B']),
+    answer: 'B',
+  }]));
+  assert.equal(prepared.canImport, true);
+  assert.deepEqual(prepared.bank.questions[0].options.map(({ key }) => key), ['A', 'B', 'C']);
+  assert.notEqual(
+    prepared.bank.questions[0].fingerprint,
+    twoOptionVersion.bank.questions[0].fingerprint,
+  );
+});
+
+test('keeps four-option single-choice questions compatible', () => {
+  const question = { ...makeQuestion('four-single'), answer: 'D' };
+  const prepared = prepareUserBankImport(makeBank([question]));
+  assert.equal(prepared.canImport, true);
+  assert.equal(prepared.bank.questions[0].answer, 'D');
+});
+
+test('rejects C as the answer of a two-option question', () => {
+  const question = { ...makeQuestion('two-invalid'), options: makeOptions(['A', 'B']), answer: 'C' };
+  const prepared = prepareUserBankImport(makeBank([question]));
+  assert.equal(prepared.canImport, false);
+  assert.match(prepared.issues.join('\n'), /单选题答案必须是当前题目实际存在的选项之一/);
+});
+
+test('rejects D as the answer of a three-option question', () => {
+  const question = { ...makeQuestion('three-invalid'), options: makeOptions(['A', 'B', 'C']), answer: 'D' };
+  const prepared = prepareUserBankImport(makeBank([question]));
+  assert.equal(prepared.canImport, false);
+  assert.match(prepared.issues.join('\n'), /实际存在的选项/);
+});
+
+test('imports and naturally orders a three-option multiple-choice answer', () => {
+  const question = {
+    ...makeQuestion('three-multiple'),
+    type: 'multiple-choice',
+    options: makeOptions(['A', 'B', 'C']),
+    answer: ['C', 'A'],
+  };
+  const prepared = prepareUserBankImport(makeBank([question]));
+  assert.equal(prepared.canImport, true);
+  assert.deepEqual(prepared.bank.questions[0].answer, ['A', 'C']);
+});
+
+test('rejects a multiple-choice answer that references a missing option', () => {
+  const question = {
+    ...makeQuestion('missing-multiple'),
+    type: 'multiple-choice',
+    options: makeOptions(['A', 'B', 'C']),
+    answer: ['A', 'D'],
+  };
+  const prepared = prepareUserBankImport(makeBank([question]));
+  assert.equal(prepared.canImport, false);
+  assert.match(prepared.issues.join('\n'), /至少两个不重复且实际存在的选项/);
+});
+
+test('imports a two-option multiple-choice question using both answers', () => {
+  const question = {
+    ...makeQuestion('two-multiple'),
+    type: 'multiple-choice',
+    options: makeOptions(['A', 'B']),
+    answer: ['B', 'A'],
+  };
+  const prepared = prepareUserBankImport(makeBank([question]));
+  assert.equal(prepared.canImport, true);
+  assert.deepEqual(prepared.bank.questions[0].answer, ['A', 'B']);
+});
+
+test('rejects a question with only one option', () => {
+  const question = { ...makeQuestion('one-option'), options: makeOptions(['A']), answer: 'A' };
+  const prepared = prepareUserBankImport(makeBank([question]));
+  assert.equal(prepared.canImport, false);
+  assert.match(prepared.issues.join('\n'), /选项必须为 2～4 个/);
+});
+
+test('rejects non-contiguous option keys', () => {
+  for (const keys of [['A', 'C'], ['A', 'B', 'D']]) {
+    const question = { ...makeQuestion(`gap-${keys.join('')}`), options: makeOptions(keys), answer: 'A' };
+    const prepared = prepareUserBankImport(makeBank([question]));
+    assert.equal(prepared.canImport, false);
+    assert.match(prepared.issues.join('\n'), /顺序连续排列/);
+  }
+});
+
+test('rejects option keys in the wrong order', () => {
+  for (const keys of [['B', 'A'], ['A', 'C', 'B']]) {
+    const question = { ...makeQuestion(`order-${keys.join('')}`), options: makeOptions(keys), answer: 'A' };
+    const prepared = prepareUserBankImport(makeBank([question]));
+    assert.equal(prepared.canImport, false);
+    assert.match(prepared.issues.join('\n'), /顺序连续排列/);
+  }
+});
+
+test('rejects options starting from B, repeated keys, and more than four choices', () => {
+  for (const keys of [['B', 'C'], ['A', 'A'], ['A', 'B', 'C', 'D', 'E']]) {
+    const question = { ...makeQuestion(`bounds-${keys.join('')}`), options: makeOptions(keys), answer: 'A' };
+    const prepared = prepareUserBankImport(makeBank([question]));
+    assert.equal(prepared.canImport, false);
+    assert.match(prepared.issues.join('\n'), /选项必须为 2～4 个/);
+  }
+});
+
+test('keeps empty and duplicate option text invalid', () => {
+  const empty = makeOptions(['A', 'B']);
+  empty[1].text = '';
+  const emptyPrepared = prepareUserBankImport(makeBank([{
+    ...makeQuestion('empty-option'), options: empty, answer: 'A',
+  }]));
+  assert.equal(emptyPrepared.canImport, false);
+  assert.match(emptyPrepared.issues.join('\n'), /选项内容不能为空/);
+
+  const duplicate = makeOptions(['A', 'B']);
+  duplicate[1].text = duplicate[0].text;
+  const duplicatePrepared = prepareUserBankImport(makeBank([{
+    ...makeQuestion('duplicate-option'), options: duplicate, answer: 'A',
+  }]));
+  assert.equal(duplicatePrepared.canImport, false);
+  assert.match(duplicatePrepared.issues.join('\n'), /选项内容不能重复/);
 });
 
 test('keeps valid questions while reporting malformed and duplicate entries', () => {

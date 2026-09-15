@@ -136,6 +136,28 @@ test('preserves multiple-choice type and answer arrays through storage and expor
   assert.deepEqual(exported.questions[0].answer, ['B', 'D']);
 });
 
+test('preserves variable option counts through import, storage, load, and export', () => {
+  for (const count of [2, 3]) {
+    const source = sourceBank();
+    source.questions[0].options = source.questions[0].options.slice(0, count);
+    source.questions[0].answer = count === 2 ? 'B' : 'C';
+    const storage = createUserBankStorage(createMemoryBankAdapter(), {
+      now: () => 1000,
+      random: () => 0,
+    });
+    const prepared = prepareUserBankImport(source);
+    assert.equal(prepared.canImport, true);
+    const manifest = storage.importBank(prepared, { subjectId: 'subject-1' });
+    const loaded = storage.loadBank(manifest.id).questions[0];
+    assert.equal(loaded.options.length, count);
+    assert.equal(loaded.answer, source.questions[0].answer);
+    const exported = storage.exportBank(manifest.id).questions[0];
+    assert.equal(exported.options.length, count);
+    assert.deepEqual(exported.options, source.questions[0].options);
+    assert.equal(exported.answer, source.questions[0].answer);
+  }
+});
+
 test('requires a subject, updates bank subjects and exports the subject name', () => {
   const storage = createUserBankStorage(createMemoryBankAdapter(), {
     now: () => 1000,

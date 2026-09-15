@@ -124,3 +124,26 @@ test('marks incomplete or extra multiple-choice selections wrong and rejects inv
   session = submitAnswer(session);
   assert.equal(session.answers[0].correct, false);
 });
+
+test('grades two- and three-option questions without phantom choices', () => {
+  const single = {
+    id: 'two-option-single',
+    options: [{ key: 'A' }, { key: 'B' }],
+    answer: 'B',
+  };
+  let singleSession = createSession('private', [single]);
+  assert.throws(() => selectAnswer(singleSession, 'C'), /invalid answer/i);
+  singleSession = submitAnswer(selectAnswer(singleSession, 'B'));
+  assert.equal(singleSession.answers[0].correct, true);
+
+  const multiple = {
+    id: 'three-option-multiple',
+    type: 'multiple-choice',
+    options: [{ key: 'A' }, { key: 'B' }, { key: 'C' }],
+    answer: ['A', 'C'],
+  };
+  let multipleSession = createSession('private', [multiple]);
+  multipleSession = submitAnswer(selectAnswer(multipleSession, ['C', 'A']));
+  assert.deepEqual(multipleSession.answers[0].userAnswer, ['A', 'C']);
+  assert.equal(multipleSession.answers[0].correct, true);
+});

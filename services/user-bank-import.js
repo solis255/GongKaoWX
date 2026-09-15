@@ -8,7 +8,7 @@ const MATERIAL_FIELDS = ['id', 'title', 'content', 'sourceRefs'];
 const SOURCE_FIELDS = ['kind', 'title', 'url', 'publishedAt', 'accessedAt'];
 const OPTION_FIELDS = ['key', 'text'];
 const DIFFICULTIES = new Set(['easy', 'medium', 'hard', 'unknown']);
-const ANSWERS = ['A', 'B', 'C', 'D'];
+const OPTION_KEYS = ['A', 'B', 'C', 'D'];
 const SOURCE_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;
 
 function normalizeText(value) {
@@ -297,7 +297,15 @@ function prepareUserBankImport(input, existingBanks = []) {
       }
       return { key: normalizeText(option?.key).toUpperCase(), text: normalizeText(option?.text) };
     }) : [];
-    if (options.map(({ key }) => key).join(',') !== 'A,B,C,D') questionIssues.push('选项必须按 A、B、C、D 排列');
+    const availableOptionKeys = options.map(({ key }) => key);
+    const expectedOptionKeys = OPTION_KEYS.slice(0, options.length);
+    if (
+      options.length < 2
+      || options.length > OPTION_KEYS.length
+      || availableOptionKeys.join(',') !== expectedOptionKeys.join(',')
+    ) {
+      questionIssues.push('选项必须为 2～4 个，并按 A、B、C、D 顺序连续排列');
+    }
     if (options.some(({ text }) => !text)) questionIssues.push('选项内容不能为空');
     if (new Set(options.map(({ text }) => text)).size !== options.length) questionIssues.push('选项内容不能重复');
     const type = question.type === undefined ? 'single-choice' : normalizeText(question.type);
@@ -313,18 +321,26 @@ function prepareUserBankImport(input, existingBanks = []) {
         questionIssues.push('多选题答案必须是数组');
         answer = [];
       } else {
-        answer = [...new Set(question.answer.map((item) => normalizeText(item).toUpperCase()))];
-        answer = ANSWERS.filter((key) => answer.includes(key));
-        if (question.answer.some((item) => typeof item !== 'string')) {
+        const normalizedAnswers = question.answer.map((item) => normalizeText(item).toUpperCase());
+        const uniqueAnswers = [...new Set(normalizedAnswers)];
+        answer = availableOptionKeys.filter((key) => uniqueAnswers.includes(key));
+        const containsNonString = question.answer.some((item) => typeof item !== 'string');
+        if (containsNonString) {
           questionIssues.push('多选题答案数组只能包含字符串');
         }
-        if (answer.length < 2 || answer.length !== question.answer.length) {
-          questionIssues.push('多选题答案必须包含至少两个不重复的 A、B、C、D 选项');
+        if (
+          normalizedAnswers.length < 2
+          || uniqueAnswers.length !== normalizedAnswers.length
+          || normalizedAnswers.some((key) => !availableOptionKeys.includes(key))
+        ) {
+          questionIssues.push('多选题答案必须包含至少两个不重复且实际存在的选项');
         }
       }
     } else {
       answer = typeof question.answer === 'string' ? normalizeText(question.answer).toUpperCase() : '';
-      if (!ANSWERS.includes(answer)) questionIssues.push('单选题答案必须是 A、B、C、D 之一');
+      if (!availableOptionKeys.includes(answer)) {
+        questionIssues.push('单选题答案必须是当前题目实际存在的选项之一');
+      }
     }
     const difficulty = normalizeText(question?.difficulty);
     if (!DIFFICULTIES.has(difficulty)) questionIssues.push('difficulty 必须是 easy、medium、hard 或 unknown');

@@ -77,6 +77,8 @@ test('question page opens the card and supports previous navigation', () => {
   assert.match(script, /selected\.includes\(key\)/);
   assert.match(markup, /多选题/);
   assert.match(markup, /item\.selected/);
+  assert.match(markup, /wx:for="\{\{options\}\}"/);
+  assert.doesNotMatch(markup, /option\[[0-3]\]/);
   assert.doesNotMatch(script, /已完成.*题/);
 });
 
@@ -91,6 +93,8 @@ test('analysis uses local sources, a scroll view, and real card navigation', () 
   assert.match(markup, /questionTypeText/);
   assert.match(markup, /item\.correct/);
   assert.match(markup, /item\.chosen/);
+  assert.match(markup, /wx:for="\{\{question\.options\}\}"/);
+  assert.doesNotMatch(markup, /option\[[0-3]\]/);
   assert.match(markup, /<scroll-view[^>]*scroll-y/);
   assert.match(markup, /wx:if="\{\{sources\.length\}\}"/);
   assert.doesNotMatch(script, /已完成.*题/);

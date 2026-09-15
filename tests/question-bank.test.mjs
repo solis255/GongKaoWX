@@ -68,6 +68,29 @@ test('loads, searches and picks questions from private banks only', () => {
   assert.equal(getQuestionById('missing-id'), undefined);
 });
 
+test('loads two- and three-option questions without filtering them out', () => {
+  const source = sourceBank('可变选项题库', '可变题');
+  source.questions[0].options = source.questions[0].options.slice(0, 2);
+  source.questions[0].answer = 'B';
+  source.questions[1].options = source.questions[1].options.slice(0, 3);
+  source.questions[1].answer = 'C';
+  const bankStorage = createUserBankStorage(createMemoryBankAdapter(), {
+    now: () => 1000,
+    random: () => 0,
+  });
+  const subjectStorage = createSubjectStorage(createSubjectMemory(), {
+    now: () => 1000,
+    random: () => 0,
+  });
+  const subject = subjectStorage.createSubject('判断推理');
+  const manifest = bankStorage.importBank(prepareUserBankImport(source), { subjectId: subject.id });
+  configureQuestionBankStorage(bankStorage, subjectStorage);
+
+  const loaded = loadBank(manifest.id).questions;
+  assert.deepEqual(loaded.map(({ options }) => options.length), [2, 3]);
+  assert.deepEqual(loaded.map(({ answer }) => answer), ['B', 'C']);
+});
+
 test('picks balanced mixed questions from selected private banks', () => {
   const { lawBank, educationBank } = configuredCatalog();
   const picked = pickMixedQuestions(3, { moduleKeys: [lawBank.id, educationBank.id] });
@@ -85,7 +108,7 @@ test('mixed picking defaults to all private banks and de-duplicates keys', () =>
   assert.equal(pickMixedQuestions(10, { moduleKeys: [lawBank.id, lawBank.id] }).length, 2);
 });
 
-test('validates both legacy single-choice and explicit multiple-choice answers', () => {
+test('validates variable option counts and answers against the options actually present', () => {
   const base = {
     id: 'private-001', stem: '请选择正确选项',
     options: [{ key: 'A' }, { key: 'B' }, { key: 'C' }, { key: 'D' }],
@@ -95,4 +118,22 @@ test('validates both legacy single-choice and explicit multiple-choice answers',
   assert.equal(isValidQuestion({ ...base, type: 'multiple-choice', answer: ['A', 'C'] }), true);
   assert.equal(isValidQuestion({ ...base, type: 'multiple-choice', answer: ['A'] }), false);
   assert.equal(isValidQuestion({ ...base, type: 'multiple-choice', answer: ['A', 'A'] }), false);
+
+  const twoOptions = { ...base, options: [{ key: 'A' }, { key: 'B' }] };
+  assert.equal(isValidQuestion({ ...twoOptions, answer: 'B' }), true);
+  assert.equal(isValidQuestion({ ...twoOptions, answer: 'C' }), false);
+  assert.equal(isValidQuestion({ ...twoOptions, type: 'multiple-choice', answer: ['B', 'A'] }), true);
+
+  const threeOptions = { ...base, options: [{ key: 'A' }, { key: 'B' }, { key: 'C' }] };
+  assert.equal(isValidQuestion({ ...threeOptions, answer: 'C' }), true);
+  assert.equal(isValidQuestion({ ...threeOptions, answer: 'D' }), false);
+  assert.equal(isValidQuestion({ ...threeOptions, type: 'multiple-choice', answer: ['A', 'C'] }), true);
+  assert.equal(isValidQuestion({ ...threeOptions, type: 'multiple-choice', answer: ['A', 'D'] }), false);
+  assert.equal(isValidQuestion({ ...base, options: [{ key: 'A' }], answer: 'A' }), false);
+  assert.equal(isValidQuestion({ ...base, options: [{ key: 'A' }, { key: 'C' }], answer: 'A' }), false);
+  assert.equal(isValidQuestion({
+    ...base,
+    options: [{ key: 'A' }, { key: 'B' }, { key: 'C' }, { key: 'D' }, { key: 'E' }],
+    answer: 'A',
+  }), false);
 });
