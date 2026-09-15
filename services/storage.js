@@ -7,6 +7,7 @@ const KEYS = {
   dailyGoal: 'guokao_daily_goal',
   favoriteRecords: 'guokao_favorite_records',
   userProfile: 'guokao_user_profile_v1',
+  examConfig: 'guokao_exam_config_v1',
 };
 
 const DEFAULT_USER_PROFILE = Object.freeze({
@@ -32,15 +33,41 @@ function normalizeUserProfile(profile) {
   };
 }
 
+function isValidExamDate(value) {
+  if (typeof value !== 'string') return false;
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return false;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  if (year < 1900 || month < 1 || month > 12) return false;
+  const leap = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+  const monthDays = [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  return day >= 1 && day <= monthDays[month - 1];
+}
+
+function normalizeExamConfig(config) {
+  if (!config || typeof config !== 'object' || Array.isArray(config)) return null;
+  const name = typeof config.name === 'string' ? config.name.trim() : '';
+  const date = typeof config.date === 'string' ? config.date.trim() : '';
+  if (!name || getTextLength(name) > 30 || !isValidExamDate(date)) return null;
+  return { name, date };
+}
+
 function defaultAdapter() {
   if (typeof wx !== 'undefined') {
     return {
       get: (key) => wx.getStorageSync(key),
       set: (key, value) => wx.setStorageSync(key, value),
+      remove: (key) => wx.removeStorageSync(key),
     };
   }
   const memory = new Map();
-  return { get: (key) => memory.get(key), set: (key, value) => memory.set(key, value) };
+  return {
+    get: (key) => memory.get(key),
+    set: (key, value) => memory.set(key, value),
+    remove: (key) => memory.delete(key),
+  };
 }
 
 function createStorage(adapter = defaultAdapter()) {
@@ -131,6 +158,18 @@ function createStorage(adapter = defaultAdapter()) {
       adapter.set(KEYS.userProfile, normalized);
       return normalized;
     },
+    getExamConfig: () => normalizeExamConfig(adapter.get(KEYS.examConfig)),
+    saveExamConfig(config) {
+      const normalized = normalizeExamConfig(config);
+      if (!normalized) throw new TypeError('exam config requires a name between 1 and 30 characters and a valid date');
+      adapter.set(KEYS.examConfig, normalized);
+      return normalized;
+    },
+    clearExamConfig() {
+      if (typeof adapter.remove === 'function') adapter.remove(KEYS.examConfig);
+      else adapter.set(KEYS.examConfig, null);
+      return null;
+    },
     getHistory: () => readList(KEYS.history),
     savePractice(record) {
       adapter.set(KEYS.history, [...readList(KEYS.history), { ...record, completedAt: Date.now() }]);
@@ -165,4 +204,11 @@ function createStorage(adapter = defaultAdapter()) {
   };
 }
 
-module.exports = { createStorage, KEYS, DEFAULT_USER_PROFILE, normalizeUserProfile };
+module.exports = {
+  createStorage,
+  KEYS,
+  DEFAULT_USER_PROFILE,
+  normalizeUserProfile,
+  normalizeExamConfig,
+  isValidExamDate,
+};

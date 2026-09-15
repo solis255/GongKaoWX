@@ -4,6 +4,19 @@
     <view><view class="title">{{greeting.title}}，{{greeting.subtitle}}</view><view class="streak">已坚持 <text>{{streak}}</text> 天</view></view>
     <view class="calendar"><text>{{dateCard.month}}月</text><text class="calendar__day">{{dateCard.day}}</text><text>{{dateCard.weekday}}</text></view>
   </view>
+  <view class="exam-card {{examCountdown.configured?'exam-card--configured':'exam-card--unset'}}" bindtap="openExamSettings">
+    <block wx:if="{{examCountdown.configured}}">
+      <view class="exam-card__top"><text>考试倒计时</text><text>{{examCountdown.date}}</text></view>
+      <view class="exam-card__name">{{examCountdown.name}}</view>
+      <view wx:if="{{examCountdown.state==='future'}}" class="exam-card__countdown">距离考试还有 <text>{{examCountdown.days}}</text> 天</view>
+      <view wx:elif="{{examCountdown.state==='today'}}" class="exam-card__countdown exam-card__countdown--today">考试就在今天</view>
+      <view wx:else class="exam-card__countdown exam-card__countdown--past">考试已结束 <text>{{examCountdown.days}}</text> 天</view>
+    </block>
+    <block wx:else>
+      <view><view class="exam-card__unset-title">设置考试日期，开始倒计时</view><view class="exam-card__unset-hint">明确目标，把每一天都用在必经之路上</view></view>
+      <view class="exam-card__action">去设置</view>
+    </block>
+  </view>
   <view class="gradient-card goal" bindtap="openGoal">
     <view><text class="goal__label">今日目标</text><view class="goal__number">{{todayGoal}}<text>题</text></view></view>
     <view class="goal__divider"></view>

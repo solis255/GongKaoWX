@@ -10,6 +10,7 @@
     "pages/wrong/index",
     "pages/stats/index",
     "pages/profile/index",
+    "pages/checkin/index",
     "pages/goal/index",
     "pages/favorites/index",
     "pages/history/index",

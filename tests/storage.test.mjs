@@ -63,6 +63,59 @@ test('rejects invalid nicknames without overwriting an existing profile', () => 
   });
 });
 
+test('persists, validates, and clears the local exam configuration', () => {
+  const values = new Map();
+  const adapter = {
+    get: (key) => values.get(key),
+    set: (key, value) => values.set(key, value),
+  };
+  const storage = createStorage(adapter);
+
+  assert.equal(storage.getExamConfig(), null);
+  assert.deepEqual(storage.saveExamConfig({
+    name: '  2027 国家公务员考试  ',
+    date: '2026-11-29',
+  }), {
+    name: '2027 国家公务员考试',
+    date: '2026-11-29',
+  });
+  assert.deepEqual(createStorage(adapter).getExamConfig(), {
+    name: '2027 国家公务员考试',
+    date: '2026-11-29',
+  });
+
+  for (const invalid of [
+    { name: '', date: '2026-11-29' },
+    { name: '   ', date: '2026-11-29' },
+    { name: '1234567890123456789012345678901', date: '2026-11-29' },
+    { name: '无效日期', date: '2026-02-29' },
+    { name: '无效日期', date: '2026-11-31' },
+    { name: '无效日期', date: '2026/11/29' },
+  ]) {
+    assert.throws(() => storage.saveExamConfig(invalid), /exam config/);
+  }
+  assert.deepEqual(storage.getExamConfig(), {
+    name: '2027 国家公务员考试',
+    date: '2026-11-29',
+  });
+  assert.deepEqual(storage.saveExamConfig({ name: '闰年考试', date: '2028-02-29' }), {
+    name: '闰年考试',
+    date: '2028-02-29',
+  });
+  assert.equal(storage.clearExamConfig(), null);
+  assert.equal(storage.getExamConfig(), null);
+});
+
+test('ignores malformed cached exam configurations', () => {
+  for (const stored of [null, 'invalid', {}, { name: '考试', date: 'not-a-date' }]) {
+    const storage = createStorage({
+      get: (key) => (key === 'guokao_exam_config_v1' ? stored : undefined),
+      set: () => undefined,
+    });
+    assert.equal(storage.getExamConfig(), null);
+  }
+});
+
 test('persists wrong answer ids without duplicates', () => {
   const values = new Map();
   const storage = createStorage({

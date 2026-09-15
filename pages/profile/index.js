@@ -3,6 +3,13 @@ const { listUserBanks } = require('../../services/question-bank');
 
 const AVATAR_FILE_PREFIX = 'guokao-profile-avatar-';
 
+function formatLocalDate(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 function getAvatarExtension(filePath) {
   const match = typeof filePath === 'string'
     ? filePath.match(/\.([a-zA-Z0-9]+)(?:[?#].*)?$/)
@@ -59,6 +66,13 @@ Page({
     profileError: '',
     todayDistribution: [],
     todayDistributionTotal: 0,
+    examConfigured: false,
+    examConfig: { name: '', date: '' },
+    examEditing: false,
+    examSaving: false,
+    draftExamName: '',
+    draftExamDate: '',
+    examError: '',
     menu: [
       { label: '学习目标', url: '/pages/goal/index' },
       { label: '练习记录', url: '/pages/history/index' },
@@ -66,6 +80,9 @@ Page({
       { label: '内容与反馈', url: '' },
       { label: '关于题库', url: '' },
     ],
+  },
+  onLoad(options) {
+    this.openExamEditorOnShow = Boolean(options && options.editExam === '1');
   },
   onShow() {
     const app = getApp();
@@ -78,22 +95,31 @@ Page({
       listUserBanks({ includeTrash: true }),
       now,
     );
+    const examConfig = storage.getExamConfig();
     const nextData = {
       layout: app.globalData.layout,
       ...stats,
       todayDistribution,
       todayDistributionTotal: todayDistribution.reduce((sum, item) => sum + item.value, 0),
+      examConfigured: Boolean(examConfig),
+      examConfig: examConfig || { name: '', date: '' },
     };
     if (!this.data.editing) Object.assign(nextData, storage.getUserProfile());
-    this.setData(nextData);
+    this.setData(nextData, () => {
+      if (!this.openExamEditorOnShow) return;
+      this.openExamEditorOnShow = false;
+      this.startEditExam();
+    });
   },
   startEdit() {
     this.setData({
       editing: true,
+      examEditing: false,
       draftNickname: this.data.nickname,
       draftAvatarPath: this.data.avatarPath,
       avatarChanged: false,
       profileError: '',
+      examError: '',
     });
   },
   cancelEdit() {
@@ -186,6 +212,94 @@ Page({
       if (newAvatarPath) await removeManagedAvatar(newAvatarPath);
       this.setData({ saving: false, profileError: '资料保存失败，请重试' });
     }
+  },
+  startEditExam() {
+    const config = this.data.examConfigured ? this.data.examConfig : null;
+    this.setData({
+      editing: false,
+      draftNickname: '',
+      draftAvatarPath: '',
+      avatarChanged: false,
+      profileError: '',
+      examEditing: true,
+      draftExamName: config ? config.name : '',
+      draftExamDate: config ? config.date : formatLocalDate(),
+      examError: '',
+    });
+  },
+  cancelEditExam() {
+    if (this.data.examSaving) return;
+    this.setData({
+      examEditing: false,
+      draftExamName: '',
+      draftExamDate: '',
+      examError: '',
+    });
+  },
+  inputExamName(event) {
+    this.setData({ draftExamName: event.detail.value, examError: '' });
+  },
+  changeExamDate(event) {
+    this.setData({ draftExamDate: event.detail.value, examError: '' });
+  },
+  saveExamConfig() {
+    if (this.data.examSaving) return;
+    const name = typeof this.data.draftExamName === 'string'
+      ? this.data.draftExamName.trim()
+      : '';
+    if (!name) {
+      this.setData({ examError: '考试名称不能为空' });
+      return;
+    }
+    if (Array.from(name).length > 30) {
+      this.setData({ examError: '考试名称最多 30 个字符' });
+      return;
+    }
+    if (!this.data.draftExamDate) {
+      this.setData({ examError: '请选择考试日期' });
+      return;
+    }
+
+    this.setData({ examSaving: true, examError: '' });
+    try {
+      const examConfig = getApp().globalData.storage.saveExamConfig({
+        name,
+        date: this.data.draftExamDate,
+      });
+      this.setData({
+        examConfigured: true,
+        examConfig,
+        examEditing: false,
+        examSaving: false,
+        draftExamName: '',
+        draftExamDate: '',
+      });
+      wx.showToast({ title: '考试设置已保存', icon: 'success' });
+    } catch (error) {
+      this.setData({ examSaving: false, examError: '请填写有效的考试名称和日期' });
+    }
+  },
+  clearExamConfig() {
+    wx.showModal({
+      title: '清除考试设置？',
+      content: '首页将不再显示本次考试倒计时。',
+      confirmText: '清除',
+      confirmColor: '#df6464',
+      success: ({ confirm }) => {
+        if (!confirm) return;
+        getApp().globalData.storage.clearExamConfig();
+        this.setData({
+          examConfigured: false,
+          examConfig: { name: '', date: '' },
+          examEditing: false,
+          examSaving: false,
+          draftExamName: '',
+          draftExamDate: '',
+          examError: '',
+        });
+        wx.showToast({ title: '考试设置已清除', icon: 'none' });
+      },
+    });
   },
   openMenu(event) {
     const item = this.data.menu[event.currentTarget.dataset.index];

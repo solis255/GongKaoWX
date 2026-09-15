@@ -11,7 +11,7 @@
         <button class="edit-trigger" bindtap="startEdit">编辑资料</button>
       </view>
       <view class="muted">连续学习 <text class="green">{{streak}}</text> 天</view>
-      <view class="goal-chip">目标：2027 国考</view>
+      <view class="goal-chip">目标：{{examConfigured?examConfig.name:'未设置考试'}}</view>
     </view>
   </view>
 
@@ -49,6 +49,44 @@
       <view class="distribution-empty__title">今天还没有刷题记录</view>
       <view class="distribution-empty__hint">完成一道题后，这里会显示今日各科占比</view>
     </view>
+  </view>
+  <view class="section-title exam-setting-title">考试设置</view>
+  <view class="card exam-setting-card">
+    <block wx:if="{{!examEditing}}">
+      <view class="exam-setting-view">
+        <view wx:if="{{examConfigured}}" class="exam-setting-copy">
+          <view class="exam-setting-label">当前考试目标</view>
+          <view class="exam-setting-name">{{examConfig.name}}</view>
+          <view class="exam-setting-date">考试日期·{{examConfig.date}}</view>
+        </view>
+        <view wx:else class="exam-setting-copy">
+          <view class="exam-setting-name">还未设置考试</view>
+          <view class="exam-setting-date">设置后首页会显示考试倒计时</view>
+        </view>
+        <button class="exam-setting-edit" bindtap="startEditExam">{{examConfigured?'修改':'设置'}}</button>
+      </view>
+    </block>
+    <block wx:else>
+      <view class="exam-field">
+        <view class="exam-field__label">考试名称</view>
+        <view class="exam-field__control">
+          <input type="text" value="{{draftExamName}}" maxlength="30" placeholder="例如：2027 国家公务员考试" confirm-type="done" bindinput="inputExamName"/>
+          <text>{{draftExamName.length}}/30</text>
+        </view>
+      </view>
+      <view class="exam-field">
+        <view class="exam-field__label">考试日期</view>
+        <picker mode="date" value="{{draftExamDate}}" bindchange="changeExamDate">
+          <view class="exam-date-picker"><text>{{draftExamDate||'请选择日期'}}</text><text>选择 ›</text></view>
+        </picker>
+      </view>
+      <view wx:if="{{examError}}" class="exam-error">{{examError}}</view>
+      <view class="exam-setting-actions">
+        <button class="exam-action exam-action--cancel" disabled="{{examSaving}}" bindtap="cancelEditExam">取消</button>
+        <button class="exam-action exam-action--save" loading="{{examSaving}}" disabled="{{examSaving}}" bindtap="saveExamConfig">保存</button>
+      </view>
+      <button wx:if="{{examConfigured}}" class="exam-clear" disabled="{{examSaving}}" bindtap="clearExamConfig">清除考试设置</button>
+    </block>
   </view>
   <view class="card menu"><view class="menu-row" wx:for="{{menu}}" wx:key="label" data-index="{{index}}" bindtap="openMenu"><view class="menu-mark menu-mark--{{index%2?'blue':'green'}}"></view><text>{{item.label}}</text><text class="menu-more">查看</text></view></view>
   <view class="review-note">题库内容持续复核中</view>

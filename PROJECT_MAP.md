@@ -2,14 +2,14 @@
 
 > 用途：在后续修改中先查本文件，快速定位页面、业务逻辑、题库和测试，避免重复扫描整个仓库。
 >
-> 最近完整扫描：2026-09-14。扫描范围为项目根目录下除 `.git/` 内部数据之外的全部 120 个受版本管理的项目文件；新增、删除或重命名文件后应同步更新本导航。
+> 最近完整扫描：2026-09-14。扫描范围为项目根目录下除 `.git/` 内部数据之外的全部 124 个受版本管理的项目文件；新增、删除或重命名文件后应同步更新本导航。
 
 ## 1. 项目概览
 
 这是一个不依赖后端和第三方运行时的私人刷题微信小程序。项目不再内置题库；用户自行创建科目、导入 JSON 题库，设置保存在微信缓存，私人题库按分块保存在小程序本地文件目录。
 
 - 运行入口：`app.js`、`app.json`、`app.wxss`
-- 页面：`pages/` 下 16 个页面，每页由 `index.js`、`index.json`、`index.wxml`、`index.wxss` 四件套组成
+- 页面：`pages/` 下 17 个页面，每页由 `index.js`、`index.json`、`index.wxml`、`index.wxss` 四件套组成
 - 公共组件：`components/` 下的顶部栏、底部导航、进度条和饼图
 - 核心业务：`services/` 下的自定义科目、私人题库、JSON 导入、会话、存储、进度统计和安全区布局
 - JSON 参考：`questions/user-bank-import.schema.json`、`questions/user-bank-import.example.json`
@@ -25,7 +25,7 @@
 | 页面路由、全局组件、窗口配置 | `app.json` | 对应 `pages/*`、`components/*` |
 | 全局初始化、当前练习上下文 | `app.js` | `services/storage.js`、`services/layout.js` |
 | 全局颜色、按钮、卡片、通用工具类 | `app.wxss` | 对应页面或组件的 `index.wxss` |
-| 首页目标、科目进度、继续刷题 | `pages/home/index.js` | `services/user-progress.js`、`services/question-bank.js` |
+| 首页目标、考试倒计时、科目进度、继续刷题 | `pages/home/index.js` | `services/user-progress.js`、`services/question-bank.js`、`services/storage.js` |
 | 题库、科目分组或综合随机入口 | `pages/bank/index.js` | `services/question-bank.js`、`pages/practice-setup/index.js` |
 | 新增、改名或删除科目 | `pages/subjects/index.js` | `services/subject-storage.js`、`services/user-bank-storage.js` |
 | 题量、随机、只练未做题 | `pages/practice-setup/index.js` | `services/question-bank.js`、`services/storage.js` |
@@ -38,7 +38,8 @@
 | 收藏列表 | `pages/favorites/index.js` | `services/storage.js`、`services/question-bank.js` |
 | 每题练习历史 | `pages/history/index.js` | `services/user-progress.js`、`services/storage.js` |
 | 每日目标 | `pages/goal/index.js` | `services/storage.js` |
-| 个人页数据与菜单 | `pages/profile/index.js` | `services/user-progress.js` |
+| 个人页数据、资料与考试设置 | `pages/profile/index.js` | `services/user-progress.js`、`services/storage.js` |
+| 打卡月历、按日题量和月份切换 | `pages/checkin/index.js` | `services/user-progress.js`、`services/storage.js` |
 | 微信胶囊、状态栏、安全区 | `services/layout.js` | `app.js`、`components/app-header/index.js` |
 | 修改题目或解析 | 导出的私人题库 JSON | 按导入 Schema 修改后重新导入 |
 | 导入私人 JSON 题库 | `pages/import-bank/index.js` | `services/user-bank-import.js`、`services/user-bank-storage.js` |
@@ -63,7 +64,7 @@ app.js 初始化 storage 与安全区布局
   │                                ├─ 下一题 ──┘
   │                                └─ 最后一题 -> result 保存练习汇总
   │
-  └─ user-progress 从 answer events 派生首页、错题、统计、个人页和历史
+  └─ user-progress 从 answer events 派生首页、错题、统计、个人页、打卡月历和历史
 ```
 
 `getApp().globalData` 保存临时运行态：
@@ -104,6 +105,7 @@ app.js 初始化 storage 与安全区布局
 | `guokao_daily_goal` | 每日目标，合法范围 1–200 |
 | `guokao_wrong_answers` | 旧版错题 ID；当前错题视图以答题事件推导为准 |
 | `guokao_user_profile_v1` | 本地用户昵称和持久化头像路径；无数据时回退为“备考用户” |
+| `guokao_exam_config_v1` | 考试名称与 `YYYY-MM-DD` 日期；剩余天数在页面刷新时动态计算，不写入缓存 |
 | `guokao_custom_subjects_v1` | 自定义科目实体；包含稳定 ID、名称和创建/更新时间 |
 
 ## 5. 全部文件说明
@@ -118,7 +120,7 @@ app.js 初始化 storage 与安全区布局
 | `CONTENT_NOTICE.md` | 题库来源、非官方声明、版权边界、隐私、本地数据和敏感配置说明。 |
 | `LICENSE` | 程序代码的 MIT License；题库/第三方资料边界另见 `CONTENT_NOTICE.md`。 |
 | `app.js` | 小程序入口；声明全局练习上下文，启动时创建 storage，并计算微信状态栏/胶囊安全区。 |
-| `app.json` | 注册 15 个页面、3 个全局组件、自定义导航样式、懒加载和 sitemap。页面数组顺序决定首页。 |
+| `app.json` | 注册 17 个页面、3 个全局组件、自定义导航样式、懒加载和 sitemap。页面数组顺序决定首页。 |
 | `app.wxss` | 全局设计令牌与通用类：页面背景、标题、卡片、渐变按钮、标签、行布局、颜色等。 |
 | `project.config.json` | 微信开发者工具公开配置；测试 AppID、基础库、编译压缩设置和打包忽略目录。 |
 | `project.private.config.json` | 当前机器的微信开发者工具私有覆盖配置；已被 Git 忽略，不应提交 AppID/密钥。 |
@@ -132,10 +134,10 @@ app.js 初始化 storage 与安全区布局
 | `components/app-header/index.json` | 声明该目录是微信自定义组件。 |
 | `components/app-header/index.wxml` | 顶部栏结构：返回圆形按钮、居中标题、避开胶囊的右侧操作区。 |
 | `components/app-header/index.wxss` | 顶部栏定位、标题、左右操作区和返回图标样式。 |
-| `components/bottom-nav/index.js` | 四栏导航配置与跳转逻辑：首页、题库、错题、我的；用 `reLaunch` 切换一级页面。 |
+| `components/bottom-nav/index.js` | 五栏导航配置与跳转逻辑：首页、题库、错题、打卡、我的；用 `reLaunch` 切换一级页面。 |
 | `components/bottom-nav/index.json` | 声明底部导航为微信自定义组件。 |
-| `components/bottom-nav/index.wxml` | 循环渲染四个导航项，并按 `active` 标记当前页。 |
-| `components/bottom-nav/index.wxss` | 固定底栏、安全区、选中颜色和指示条样式。 |
+| `components/bottom-nav/index.wxml` | 循环渲染五个导航项，并按 `active` 标记当前页。 |
+| `components/bottom-nav/index.wxss` | 固定底栏、五等分窄屏排版、安全区、选中颜色和指示条样式。 |
 | `components/progress-bar/index.js` | 声明 `value` 百分比和 `accent` 色系两个属性。 |
 | `components/progress-bar/index.json` | 声明进度条为微信自定义组件。 |
 | `components/progress-bar/index.wxml` | 轨道与按百分比设置宽度的填充条。 |
@@ -153,10 +155,10 @@ app.js 初始化 storage 与安全区布局
 
 | 文件 | 作用 |
 | --- | --- |
-| `pages/home/index.js` | 每分钟刷新问候、日期、连续天数、今日目标、自定义科目聚合进度和错题数；处理科目练习、继续刷题、错题和目标入口。 |
+| `pages/home/index.js` | 每分钟刷新问候、日期、考试倒计时、连续天数、今日目标、科目进度和错题数；倒计时设置入口用 `reLaunch` 进入个人页编辑区。 |
 | `pages/home/index.json` | 首页自定义导航配置。 |
-| `pages/home/index.wxml` | 首页结构：问候日历、目标卡、自定义科目进度、空状态、继续刷题、错题提醒和底栏。 |
-| `pages/home/index.wxss` | 首页头部、日历、目标卡、模块列表、提醒卡等样式。 |
+| `pages/home/index.wxml` | 首页结构：问候日历、考试倒计时/未设置入口、今日目标、科目进度、空状态、继续刷题、错题提醒和底栏。 |
+| `pages/home/index.wxss` | 首页头部、日历、绿蓝柔和倒计时卡、目标卡、模块列表和提醒卡等样式。 |
 
 #### `pages/bank/` 题库
 
@@ -234,10 +236,19 @@ app.js 初始化 storage 与安全区布局
 
 | 文件 | 作用 |
 | --- | --- |
-| `pages/profile/index.js` | 加载本地用户资料、个人统计与今日科目分布；用回收站内题库保持历史事件的科目映射，并处理资料编辑和菜单跳转。 |
+| `pages/profile/index.js` | 加载本地用户资料、个人统计、今日科目分布与考试配置；处理资料编辑、原生日期选择、考试保存/清除和菜单跳转。 |
 | `pages/profile/index.json` | 个人页自定义导航配置，局部注册 `pie-chart` 组件。 |
-| `pages/profile/index.wxml` | 用户资料区、三项指标、今日刷题饼图/空状态、功能菜单、复核提示和底栏。 |
-| `pages/profile/index.wxss` | 默认头像插画、自定义头像、页内资料编辑卡、用户头部、指标卡、菜单和背景装饰样式。 |
+| `pages/profile/index.wxml` | 用户资料区、三项指标、今日刷题饼图/空状态、考试展示/编辑卡、功能菜单、复核提示和底栏。 |
+| `pages/profile/index.wxss` | 用户头部、资料编辑、指标、饼图、考试设置表单/展示卡、菜单和背景装饰样式。 |
+
+#### `pages/checkin/` 打卡日历
+
+| 文件 | 作用 |
+| --- | --- |
+| `pages/checkin/index.js` | 从答题事件加载月度活动和连续天数；处理上月、下月、回到今天及日期详情选择。 |
+| `pages/checkin/index.json` | 打卡日历页自定义导航配置。 |
+| `pages/checkin/index.wxml` | 连续/本月汇总、周一到周日月历、每日题量、今日/未来状态、日期详情卡及选中的底栏入口。 |
+| `pages/checkin/index.wxss` | 汇总渐变卡、月份工具栏、月历网格、打卡/今日/未来状态，并为固定底栏和安全区预留空间。 |
 
 #### `pages/goal/` 每日学习目标
 
@@ -300,9 +311,9 @@ app.js 初始化 storage 与安全区布局
 | `services/layout.js` | 防御性读取微信窗口信息并计算状态栏、胶囊、导航栏和内容安全区。导出 `computeLayoutMetrics`、`getSafeWindowInfo`、`resolvePositiveMetric`。 |
 | `services/question-bank.js` | 唯一的题库运行时入口；只加载私人题库，生成科目汇总，校验题目，执行单题库/混合抽题、排除已做题和按 ID 查题。 |
 | `services/practice-session.js` | 纯函数式练习状态机；创建会话、规范化单选/多选答案、按集合判定多选正确性、前后移动、跳题、构造答题卡、汇总结果。 |
-| `services/storage.js` | 封装 `wx.getStorageSync/setStorageSync`（Node 环境退化为内存适配器）；管理事件、收藏迁移、目标、练习汇总、设置和用户资料，提供 `getUserProfile()` / `saveUserProfile()`。 |
+| `services/storage.js` | 封装微信同步缓存；管理答题事件、收藏、目标、练习、用户资料和考试配置，提供 `getExamConfig()` / `saveExamConfig()` / `clearExamConfig()` 及严格日期校验。 |
 | `services/subject-storage.js` | 管理自定义科目的新增、改名、唯一性和安全删除；启动时为旧私人题库迁移 `subjectId`。 |
-| `services/user-progress.js` | 从答题事件推导问候/日期、模块进度、最新错题、本周巩固、今日题量、个人统计、连续天数、按题历史和今日科目分布；导出 `getTodaySubjectDistribution()`。 |
+| `services/user-progress.js` | 从答题事件推导各类学习统计；除今日分布和考试倒计时外，导出 `getDailyActivity()`、`getMonthActivity()`、`shiftCalendarMonth()` 供打卡日历聚合每日题量、生成平闰年月历及跨年切换。 |
 | `services/user-bank-import.js` | 私人 JSON 导入核心：严格校验单选字符串答案或多选答案数组、文本规范化、SHA-256、题目指纹、重复检测和有效题过滤。 |
 | `services/user-bank-storage.js` | 私人题库本地文件仓库：200题分块、暂存后提交、全局题目 ID、科目归属、加载/导出、回收站、恢复和永久删除；提供内存适配器用于测试。 |
 
@@ -322,11 +333,11 @@ app.js 初始化 storage 与安全区布局
 | 文件 | 覆盖范围 |
 | --- | --- |
 | `tests/layout.test.mjs` | 安全区计算、缺失/畸形指标、矛盾胶囊数据、微信 API 回退、组件布局优先级，以及题库底部工具栏的安全区/窄屏布局。 |
-| `tests/miniprogram-structure.test.mjs` | 页面注册与四件套、全局/局部组件事件、个人资料与饼图接线、答题交互、错题数据源、自定义科目入口，以及旧内置题库文件确已删除。 |
+| `tests/miniprogram-structure.test.mjs` | 页面/组件事件、个人资料、饼图、考试日期选择、首页倒计时与打卡日历接线，以及答题交互、错题数据源和题库结构。 |
 | `tests/practice-session.test.mjs` | 会话初始态、单选/多选提交、多选答案顺序无关判定、错误选项组合、前后移动、题卡锁定和结果汇总。 |
 | `tests/question-bank.test.mjs` | 无内置题库、私人题库加载、科目汇总、单题库抽题、按 ID 查题、混合均衡抽题、去重/排除和边界。 |
-| `tests/storage.test.mjs` | 错题去重、练习汇总统计、答题事件规范化、目标校验、用户资料默认值/持久化/异常回退、损坏事件过滤及收藏时间与旧数据迁移。 |
-| `tests/user-progress.test.mjs` | 问候、日期、模块完成度、最新错题、本周巩固、今日数量/科目分布、同科多题库合并、未知题库回退、连续学习、个人统计、历史聚合及异常/未来事件。 |
+| `tests/storage.test.mjs` | 现有缓存行为、用户资料，以及考试配置默认值、持久化、严格日期/名称校验、坏数据回退和清除。 |
+| `tests/user-progress.test.mjs` | 现有学习统计、今日科目分布、考试倒计时，以及打卡日历的同日聚合、未来过滤、月首偏移、平闰年和跨年切换规则。 |
 | `tests/user-bank-import.test.mjs` | SHA-256、现有单选题库兼容、多选答案规范化/坏数据拒绝、重复检测及严格字段校验。 |
 | `tests/user-bank-storage.test.mjs` | 私人题库导入、科目必填/修改/导出、单选/多选持久化、全局 ID、加载、回收站和永久删除。 |
 | `tests/subject-storage.test.mjs` | 科目名称规范化、唯一性、新增/改名/安全删除、稳定 ID，以及旧私人题库科目迁移。 |
@@ -351,7 +362,7 @@ app.js 初始化 storage 与安全区布局
 
 | 路由 | 入口 | 主要去向 |
 | --- | --- | --- |
-| `/pages/home/index` | 应用首页、底栏 | 练习设置、错题、目标 |
+| `/pages/home/index` | 应用首页、底栏 | 练习设置、错题、目标、个人页考试设置 |
 | `/pages/bank/index` | 底栏、空状态 | 练习设置 |
 | `/pages/practice-setup/index` | 首页/题库/错题 | 答题 |
 | `/pages/question/index` | 设置、错题、收藏、历史 | 解析、答题卡、返回 |
@@ -360,7 +371,8 @@ app.js 初始化 storage 与安全区布局
 | `/pages/result/index` | 最后一题解析 | 错题、再次设置、首页 |
 | `/pages/wrong/index` | 底栏、首页、结果 | 单题答题、错题会话、题库/设置 |
 | `/pages/stats/index` | 个人页正确率 | 返回个人页 |
-| `/pages/profile/index` | 底栏 | 目标、历史、收藏、统计 |
+| `/pages/profile/index` | 底栏、首页倒计时卡 | 资料/考试设置、目标、历史、收藏、统计 |
+| `/pages/checkin/index` | 底栏“打卡” | 月份切换、回到今天、查看每日刷题明细 |
 | `/pages/goal/index` | 首页目标卡、个人菜单 | 保存后返回 |
 | `/pages/favorites/index` | 个人菜单/收藏指标 | 单题答题、题库 |
 | `/pages/history/index` | 个人菜单/累计指标 | 单题答题、题库 |
@@ -384,7 +396,7 @@ app.js 初始化 storage 与安全区布局
 - 扫描时工作树中 `project.config.json` 已有未提交修改；它不是本次文档生成所改动的文件，后续修改时应保留用户现有变更。
 - `project.private.config.json` 存在于本机且未被 Git 跟踪，符合 `.gitignore` 约定。
 - 2026-08-21 执行 9 个测试文件、68 项测试全部通过；Node 16 下需逐个直接执行 `.test.mjs` 才能展开内部用例。
-- 2026-09-14 执行 9 个测试文件、77 项测试全部通过；今日科目分布、局部饼图与题库底部安全区/窄屏布局均已覆盖。
+- 2026-09-14 执行 9 个测试文件、87 项测试全部通过；五项功能的核心数据、页面接线、日期边界和布局规则均已覆盖。
 - 六套旧内置 JSON 题库、六个 generated 模块、固定题库 Schema、同步/校验脚本及对应测试已删除；运行时只读取用户导入的私人题库。
 
 ## 9. 如何维护本文件

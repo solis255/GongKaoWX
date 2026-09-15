@@ -12,6 +12,10 @@ const {
   getHistoryRows,
   getTodayCount,
   getTodaySubjectDistribution,
+  getExamCountdown,
+  getDailyActivity,
+  getMonthActivity,
+  shiftCalendarMonth,
 } = require('../services/user-progress.js');
 
 const at = (day, hour = 0) => new Date(2026, 5, day, hour).getTime();
@@ -105,6 +109,62 @@ test('returns an empty subject distribution when today has no valid events', () 
   ], [{ key: 'only-bank', subjectName: '数量关系' }], new Date(2026, 5, 20, 12)), [
     { name: '数量关系', value: 1, percent: 100 },
   ]);
+});
+
+test('builds future and same-day exam countdowns from natural calendar days', () => {
+  const config = { name: '2027 国考', date: '2026-11-29' };
+  assert.deepEqual(getExamCountdown(config, new Date(2026, 10, 19, 23, 59)), {
+    configured: true,
+    name: '2027 国考',
+    date: '2026-11-29',
+    days: 10,
+    state: 'future',
+    text: '距离考试还有 10 天',
+  });
+  assert.equal(getExamCountdown(config, new Date(2026, 10, 28, 0, 1)).days, 1);
+  assert.deepEqual(getExamCountdown(config, new Date(2026, 10, 29, 23, 59)), {
+    configured: true,
+    name: '2027 国考',
+    date: '2026-11-29',
+    days: 0,
+    state: 'today',
+    text: '考试就在今天',
+  });
+});
+
+test('handles past, cross-month, cross-year, and unset exam countdowns', () => {
+  assert.deepEqual(getExamCountdown(
+    { name: '考试', date: '2026-11-29' },
+    new Date(2026, 10, 30, 0, 1),
+  ), {
+    configured: true,
+    name: '考试',
+    date: '2026-11-29',
+    days: 1,
+    state: 'past',
+    text: '考试已结束 1 天',
+  });
+  assert.equal(getExamCountdown(
+    { name: '跨月考试', date: '2026-02-01' },
+    new Date(2026, 0, 31, 23, 59),
+  ).days, 1);
+  assert.equal(getExamCountdown(
+    { name: '跨年考试', date: '2027-01-01' },
+    new Date(2026, 11, 31, 23, 59),
+  ).days, 1);
+
+  const unset = {
+    configured: false,
+    name: '',
+    date: '',
+    days: null,
+    state: 'unset',
+    text: '设置考试日期，开始倒计时',
+  };
+  assert.deepEqual(getExamCountdown(null, new Date(2026, 10, 20)), unset);
+  assert.deepEqual(getExamCountdown({ name: '考试', date: '2026-02-29' }, new Date(2026, 1, 1)), unset);
+  assert.deepEqual(getExamCountdown({ name: '', date: '2026-11-29' }, new Date(2026, 10, 20)), unset);
+  assert.deepEqual(getExamCountdown({ name: '考试', date: '2026-11-29' }, new Date('invalid')), unset);
 });
 
 test('builds profile totals, accuracy, favorites, and consecutive study days', () => {
@@ -259,4 +319,66 @@ test('uses empty time-derived results for an invalid now date', () => {
     favorites: 0,
     streak: 0,
   });
+});
+
+test('aggregates valid answer events by local day and ignores future calendar dates', () => {
+  const now = new Date(2026, 8, 14, 12);
+  const activity = getDailyActivity([
+    { questionId: 'q1', moduleKey: 'verbal', correct: true, answeredAt: new Date(2026, 8, 13, 8).getTime() },
+    { questionId: 'q2', moduleKey: 'verbal', correct: false, answeredAt: new Date(2026, 8, 13, 18).getTime() },
+    { questionId: 'q3', moduleKey: 'data', correct: true, answeredAt: new Date(2026, 8, 14, 20).getTime() },
+    { questionId: 'future', moduleKey: 'data', correct: true, answeredAt: new Date(2026, 8, 15, 8).getTime() },
+    { questionId: '', moduleKey: 'data', correct: true, answeredAt: new Date(2026, 8, 14, 8).getTime() },
+  ], now);
+
+  assert.deepEqual(activity, {
+    '2026-09-13': 2,
+    '2026-09-14': 1,
+  });
+  assert.deepEqual(getDailyActivity([], new Date('invalid')), {});
+});
+
+test('builds a Monday-first month with daily counts and monthly summaries', () => {
+  const now = new Date(2026, 8, 14, 12);
+  const month = getMonthActivity([
+    { questionId: 'q1', moduleKey: 'verbal', correct: true, answeredAt: new Date(2026, 8, 1, 8).getTime() },
+    { questionId: 'q2', moduleKey: 'verbal', correct: false, answeredAt: new Date(2026, 8, 1, 9).getTime() },
+    { questionId: 'q3', moduleKey: 'data', correct: true, answeredAt: new Date(2026, 8, 14, 8).getTime() },
+    { questionId: 'outside', moduleKey: 'data', correct: true, answeredAt: new Date(2026, 7, 31, 8).getTime() },
+    { questionId: 'future', moduleKey: 'data', correct: true, answeredAt: new Date(2026, 8, 20, 8).getTime() },
+  ], 2026, 9, now);
+
+  assert.equal(month.label, '2026年9月');
+  assert.equal(month.days.length, 30);
+  assert.equal(month.leadingDays, 1);
+  assert.equal(month.trailingDays, 4);
+  assert.equal(month.checkinDays, 2);
+  assert.equal(month.totalQuestions, 3);
+  assert.deepEqual(month.days[0], {
+    key: '2026-09-01',
+    day: 1,
+    count: 2,
+    checked: true,
+    isToday: false,
+    isFuture: false,
+  });
+  assert.equal(month.days[13].isToday, true);
+  assert.equal(month.days[19].isFuture, true);
+  assert.equal(month.days[19].checked, false);
+});
+
+test('uses correct February lengths for common and leap years', () => {
+  const now = new Date(2026, 8, 14);
+  assert.equal(getMonthActivity([], 2025, 2, now).days.length, 28);
+  assert.equal(getMonthActivity([], 2024, 2, now).days.length, 29);
+  assert.equal(getMonthActivity([], 2000, 2, now).days.length, 29);
+  assert.equal(getMonthActivity([], 1900, 2, now).days.length, 28);
+  assert.equal(getMonthActivity([], 2026, 13, now), null);
+});
+
+test('shifts calendar months across year boundaries', () => {
+  assert.deepEqual(shiftCalendarMonth(2026, 12, 1), { year: 2027, month: 1 });
+  assert.deepEqual(shiftCalendarMonth(2026, 1, -1), { year: 2025, month: 12 });
+  assert.deepEqual(shiftCalendarMonth(2026, 6, 18), { year: 2027, month: 12 });
+  assert.equal(shiftCalendarMonth(2026, 0, 1), null);
 });

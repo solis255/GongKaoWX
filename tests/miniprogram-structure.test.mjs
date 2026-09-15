@@ -20,6 +20,7 @@ test('registers all designed and user-data screens', () => {
     'pages/wrong/index',
     'pages/stats/index',
     'pages/profile/index',
+    'pages/checkin/index',
     'pages/goal/index',
     'pages/favorites/index',
     'pages/history/index',
@@ -144,6 +145,64 @@ test('profile renders today subject distribution with a local Canvas 2D componen
   assert.match(componentMarkup, /canvas[^>]+type="2d"/);
   assert.match(componentScript, /pixelRatio/);
   assert.match(componentScript, /context\.scale\(ratio, ratio\)/);
+});
+
+test('profile edits exam settings and home renders every countdown state', () => {
+  const profileScript = fs.readFileSync(path.join(root, 'pages/profile/index.js'), 'utf8');
+  const profileMarkup = fs.readFileSync(path.join(root, 'pages/profile/index.wxml'), 'utf8');
+  const profileStyle = fs.readFileSync(path.join(root, 'pages/profile/index.wxss'), 'utf8');
+  const homeScript = fs.readFileSync(path.join(root, 'pages/home/index.js'), 'utf8');
+  const homeMarkup = fs.readFileSync(path.join(root, 'pages/home/index.wxml'), 'utf8');
+  const homeStyle = fs.readFileSync(path.join(root, 'pages/home/index.wxss'), 'utf8');
+  const storage = fs.readFileSync(path.join(root, 'services/storage.js'), 'utf8');
+
+  assert.match(profileMarkup, /picker mode="date"/);
+  assert.match(profileMarkup, /maxlength="30"/);
+  assert.match(profileMarkup, /bindtap="saveExamConfig"/);
+  assert.match(profileMarkup, /bindtap="clearExamConfig"/);
+  assert.match(profileScript, /getExamConfig\(\)/);
+  assert.match(profileScript, /saveExamConfig/);
+  assert.match(profileScript, /clearExamConfig/);
+  assert.match(homeScript, /getExamCountdown\(storage\.getExamConfig\(\), now\)/);
+  assert.match(homeScript, /openExamSettings/);
+  assert.match(homeMarkup, /设置考试日期，开始倒计时/);
+  assert.match(homeMarkup, /距离考试还有/);
+  assert.match(homeMarkup, /考试就在今天/);
+  assert.match(homeMarkup, /考试已结束/);
+  assert.match(storage, /guokao_exam_config_v1/);
+  assert.doesNotMatch(homeScript, /Math\.ceil\([^\n]*86400000/);
+  assert.match(profileStyle, /padding-bottom:calc\(220rpx \+ env\(safe-area-inset-bottom\)\)/);
+  assert.match(homeStyle, /padding-bottom:\s*calc\(220rpx \+ env\(safe-area-inset-bottom\)\)/);
+});
+
+test('bottom navigation opens a correctly spaced event-derived check-in calendar', () => {
+  const profileScript = fs.readFileSync(path.join(root, 'pages/profile/index.js'), 'utf8');
+  const calendarScript = fs.readFileSync(path.join(root, 'pages/checkin/index.js'), 'utf8');
+  const calendarMarkup = fs.readFileSync(path.join(root, 'pages/checkin/index.wxml'), 'utf8');
+  const calendarStyle = fs.readFileSync(path.join(root, 'pages/checkin/index.wxss'), 'utf8');
+  const bottomNavScript = fs.readFileSync(path.join(root, 'components/bottom-nav/index.js'), 'utf8');
+  const bottomNavStyle = fs.readFileSync(path.join(root, 'components/bottom-nav/index.wxss'), 'utf8');
+  const storage = fs.readFileSync(path.join(root, 'services/storage.js'), 'utf8');
+
+  assert.doesNotMatch(profileScript, /pages\/checkin\/index/);
+  assert.match(bottomNavScript, /key: 'checkin'.*text: '打卡'.*pages\/checkin\/index/);
+  assert.match(bottomNavStyle, /\.nav__item\s*\{[^}]*width:\s*20%/);
+  assert.match(bottomNavStyle, /\.nav__item\s*\{[^}]*white-space:\s*nowrap/);
+  assert.match(calendarScript, /getAnswerEvents\(\)/);
+  assert.match(calendarScript, /getMonthActivity/);
+  assert.match(calendarScript, /getProfileStats/);
+  assert.match(calendarMarkup, /<bottom-nav active="checkin"><\/bottom-nav>/);
+  assert.match(calendarMarkup, /can-back="\{\{false\}\}"/);
+  assert.match(calendarStyle, /padding-bottom:\s*calc\(220rpx \+ env\(safe-area-inset-bottom\)\)/);
+  assert.match(calendarMarkup, /本月打卡/);
+  assert.match(calendarMarkup, /本月刷题/);
+  assert.match(calendarMarkup, /bindtap="previousMonth"/);
+  assert.match(calendarMarkup, /bindtap="nextMonth"/);
+  assert.match(calendarMarkup, /bindtap="goToday"/);
+  assert.match(calendarMarkup, /bindtap="selectDay"/);
+  assert.match(calendarMarkup, /calendar-day--today/);
+  assert.match(calendarMarkup, /calendar-day--future/);
+  assert.doesNotMatch(storage, /guokao_(?:checkin|attendance)/i);
 });
 
 test('question headers use icon UI and keep the card action out of the top row', () => {

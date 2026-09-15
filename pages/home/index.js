@@ -1,8 +1,34 @@
 const { listAllBanks, listSubjectSummaries } = require('../../services/question-bank');
-const { getGreeting, getDateCard, getModuleProgress, getWrongSnapshot, getTodayCount, getProfileStats } = require('../../services/user-progress');
+const {
+  getGreeting,
+  getDateCard,
+  getModuleProgress,
+  getWrongSnapshot,
+  getTodayCount,
+  getProfileStats,
+  getExamCountdown,
+} = require('../../services/user-progress');
 
 Page({
-  data: { layout: {}, greeting: {}, dateCard: {}, streak: 0, modules: [], wrongCount: 0, todayDone: 0, todayGoal: 20, todayProgress: 0 },
+  data: {
+    layout: {},
+    greeting: {},
+    dateCard: {},
+    streak: 0,
+    modules: [],
+    wrongCount: 0,
+    todayDone: 0,
+    todayGoal: 20,
+    todayProgress: 0,
+    examCountdown: {
+      configured: false,
+      name: '',
+      date: '',
+      days: null,
+      state: 'unset',
+      text: '设置考试日期，开始倒计时',
+    },
+  },
   onShow() {
     this.refresh();
     clearInterval(this.clockTimer);
@@ -29,6 +55,7 @@ Page({
       greeting: getGreeting(now), dateCard: getDateCard(now), streak: stats.streak,
       modules, wrongCount: snapshot.wrongIds.length,
       todayDone, todayGoal, todayProgress: Math.min(100, Math.round(todayDone / todayGoal * 100)),
+      examCountdown: getExamCountdown(storage.getExamConfig(), now),
     });
   },
   openSubject(event) {
@@ -53,5 +80,6 @@ Page({
     wx.navigateTo({ url: `/pages/practice-setup/index?mode=module&module=${bank.key}` });
   },
   openWrong() { wx.reLaunch({ url: '/pages/wrong/index' }); },
-  openGoal() { wx.navigateTo({ url: '/pages/goal/index' }); }
+  openGoal() { wx.navigateTo({ url: '/pages/goal/index' }); },
+  openExamSettings() { wx.reLaunch({ url: '/pages/profile/index?editExam=1' }); },
 });
