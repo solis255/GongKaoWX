@@ -1,0 +1,64 @@
+<view class="page checkin-page">
+  <app-header title="打卡日历" can-back="{{false}}"></app-header>
+
+  <view class="gradient-card summary-card">
+    <view class="summary-item">
+      <text class="summary-value">{{streak}}</text>
+      <text class="summary-unit">天</text>
+      <text class="summary-label">当前连续</text>
+    </view>
+    <view class="summary-divider"></view>
+    <view class="summary-item">
+      <text class="summary-value">{{checkinDays}}</text>
+      <text class="summary-unit">天</text>
+      <text class="summary-label">本月打卡</text>
+    </view>
+    <view class="summary-divider"></view>
+    <view class="summary-item">
+      <text class="summary-value">{{totalQuestions}}</text>
+      <text class="summary-unit">题</text>
+      <text class="summary-label">本月刷题</text>
+    </view>
+  </view>
+
+  <view class="card calendar-card">
+    <view class="month-toolbar">
+      <button class="month-arrow" bindtap="previousMonth" aria-label="上个月">‹</button>
+      <view class="month-title">{{monthLabel}}</view>
+      <button class="month-arrow" bindtap="nextMonth" aria-label="下个月">›</button>
+    </view>
+    <button class="today-button" bindtap="goToday">回到今天</button>
+
+    <view class="weekday-row">
+      <view class="weekday" wx:for="{{weekdays}}" wx:key="*this">{{item}}</view>
+    </view>
+    <view class="calendar-grid">
+      <view class="calendar-cell calendar-cell--empty" wx:for="{{leadingCells}}" wx:key="*this"></view>
+      <view
+        wx:for="{{calendarDays}}"
+        wx:key="key"
+        class="calendar-cell calendar-day {{item.checked ? 'calendar-day--checked' : ''}} {{item.isToday ? 'calendar-day--today' : ''}} {{item.isFuture ? 'calendar-day--future' : ''}} {{selected && selected.key === item.key ? 'calendar-day--selected' : ''}}"
+        data-key="{{item.key}}"
+        bindtap="selectDay"
+      >
+        <text class="day-number">{{item.day}}</text>
+        <text wx:if="{{item.checked}}" class="day-count">{{item.count}}题</text>
+      </view>
+      <view class="calendar-cell calendar-cell--empty" wx:for="{{trailingCells}}" wx:key="*this"></view>
+    </view>
+  </view>
+
+  <view wx:if="{{selected}}" class="card detail-card detail-card--{{selected.state}}">
+    <view>
+      <view class="detail-date">{{selected.label}}</view>
+      <view class="detail-text">{{selected.detailText}}</view>
+    </view>
+    <view class="detail-status">{{selected.statusText}}</view>
+  </view>
+
+  <view class="rule-note">
+    <view class="rule-dot"></view>
+    <text>当天至少完成 1 道题，即自动完成学习打卡</text>
+  </view>
+</view>
+<bottom-nav active="checkin"></bottom-nav>
